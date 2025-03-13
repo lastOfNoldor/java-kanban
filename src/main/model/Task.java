@@ -1,15 +1,18 @@
+package main.model;
+import main.service.TaskManager;
+
 public class Task {
 
     private String name;
     private String description;
     private int id;
-    private TaskStatus taskStatus;
+    private main.model.TaskStatus taskStatus;
 
     public Task(String name, String description) {
         this.id = TaskManager.idCounter++;
         this.name = name;
         this.description = description;
-        taskStatus = TaskStatus.NEW;
+        taskStatus = main.model.TaskStatus.NEW;
     }
 
     public int getId() {
@@ -24,11 +27,11 @@ public class Task {
         return description;
     }
 
-    public TaskStatus getTaskStatus() {
+    public main.model.TaskStatus getTaskStatus() {
         return taskStatus;
     }
 
-    public void setTaskStatus(TaskStatus taskStatus) {
+    public void setTaskStatus(main.model.TaskStatus taskStatus) {
         this.taskStatus = taskStatus;
     }
 
