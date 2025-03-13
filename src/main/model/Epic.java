@@ -3,7 +3,7 @@ import java.util.HashSet;
 import main.service.TaskManager;
 
 
-public class Epic extends main.model.Task {
+public class Epic extends Task {
     protected HashSet<Integer> epicSubtasks;
 
     public Epic(String name, String description) {
@@ -14,22 +14,26 @@ public class Epic extends main.model.Task {
 
 
     public void setTaskStatus() {
+        if (epicSubtasks.isEmpty()) {
+            super.setTaskStatus(TaskStatus.NEW);
+            return;
+        }
         boolean allNew = true;
         boolean allDone = true;
         for (Integer id : epicSubtasks) {
             if (TaskManager.subTasksList.get(id).getTaskStatus() != TaskStatus.NEW) {
                 allNew = false;
             }
-            if (TaskManager.subTasksList.get(id).getTaskStatus() != main.model.TaskStatus.DONE) {
+            if (TaskManager.subTasksList.get(id).getTaskStatus() != TaskStatus.DONE) {
                 allDone = false;
             }
         }
         if (allNew) {
-            super.setTaskStatus(main.model.TaskStatus.NEW);
+            super.setTaskStatus(TaskStatus.NEW);
         } else if (allDone) {
-            super.setTaskStatus(main.model.TaskStatus.DONE);
+            super.setTaskStatus(TaskStatus.DONE);
         } else {
-            super.setTaskStatus(main.model.TaskStatus.IN_PROGRESS);
+            super.setTaskStatus(TaskStatus.IN_PROGRESS);
         }
     }
 

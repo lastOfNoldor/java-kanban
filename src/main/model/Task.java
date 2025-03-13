@@ -6,13 +6,13 @@ public class Task {
     private String name;
     private String description;
     private int id;
-    private main.model.TaskStatus taskStatus;
+    private TaskStatus taskStatus;
 
     public Task(String name, String description) {
         this.id = TaskManager.idCounter++;
         this.name = name;
         this.description = description;
-        taskStatus = main.model.TaskStatus.NEW;
+        taskStatus = TaskStatus.NEW;
     }
 
     public int getId() {
@@ -27,11 +27,11 @@ public class Task {
         return description;
     }
 
-    public main.model.TaskStatus getTaskStatus() {
+    public TaskStatus getTaskStatus() {
         return taskStatus;
     }
 
-    public void setTaskStatus(main.model.TaskStatus taskStatus) {
+    public void setTaskStatus(TaskStatus taskStatus) {
         this.taskStatus = taskStatus;
     }
 

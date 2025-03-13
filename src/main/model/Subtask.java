@@ -2,7 +2,7 @@ package main.model;
 import main.service.TaskManager;
 
 
-public class Subtask extends main.model.Task {
+public class Subtask extends Task {
     private int epicId;
 
     public Subtask(String name, String description, int EpicId) {

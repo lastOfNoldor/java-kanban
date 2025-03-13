@@ -16,13 +16,23 @@ public class TaskManager {
         if (regularTasksList.containsKey(id)) {
             return regularTasksList.get(id);
         }
+        System.out.println("Неверно указан id обычной задачи");
+        return null;
+    }
+
+    public Subtask getSubTaskById(int id) {
         if (subTasksList.containsKey(id)) {
             return subTasksList.get(id);
         }
+        System.out.println("Неверно указан id подзадачи");
+        return null;
+    }
+
+    public Epic getEpicById(int id) {
         if (epicTasksList.containsKey(id)) {
             return epicTasksList.get(id);
         }
-        System.out.println("Неверно указан id задачи");
+        System.out.println("Неверно указан id Эпика");
         return null;
     }
 
@@ -54,46 +64,59 @@ public class TaskManager {
     }
 
     public void clearTasks() {
-        for (Integer id : regularTasksList.keySet()) {
-            deleteTask(id);
-        }
-        System.out.println("Все задачи типа main.Task удалены");
+        regularTasksList.clear();
+        System.out.println("Все задачи типа Task удалены");
     }
 
     public void clearSubTasks() {
         for (Integer id : subTasksList.keySet()) {
-            deleteTask(id);
+            Subtask currentSubtask = getSubTaskById(id);
+            Epic currentEpic = getEpicById(currentSubtask.getEpicId());
+            currentEpic.getEpicSubtasks().remove(id);
         }
-        System.out.println("Все задачи типа main.model.Subtask удалены");
+        for (Integer id : epicTasksList.keySet()) {
+            getEpicById(id).setTaskStatus();
+        }
+        subTasksList.clear();
+        System.out.println("Все задачи типа Subtask удалены, статус всех Эпиков автоматически обновлен");
     }
 
     public void clearEpicTasks() {
-        for (Integer id : epicTasksList.keySet()) {
-            deleteTask(id);
-        }
-        System.out.println("Все задачи типа main.Epic удалены");
+        subTasksList.clear();
+        epicTasksList.clear();
+        System.out.println("Все задачи типа Epic удалены (и все SubTask вместе с ними)");
     }
 
-    //логика удаления по id для любого объекта без проблем умещается в один метод
+
     public void deleteTask(int id) {
         if (regularTasksList.containsKey(id)) {
             regularTasksList.remove(id);
-            return;
+        } else {
+            System.out.println("Неверно указан id обычной задачи");
         }
+    }
+
+    public void deleteSubTask(int id) {
         if (subTasksList.containsKey(id)) {
-            Subtask currentSubtask = subTasksList.get(id);
-            Epic currentEpic = epicTasksList.get(currentSubtask.getEpicId());
+            Subtask currentSubtask = getSubTaskById(id);
+            Epic currentEpic = getEpicById(currentSubtask.getEpicId());
             currentEpic.getEpicSubtasks().remove(id);
             subTasksList.remove(id);
-            return;
+            currentEpic.setTaskStatus();
+        } else {
+            System.out.println("Неверно указан id подзадачи");
         }
+    }
+
+    public void deleteEpic(int id) {
         if (epicTasksList.containsKey(id)) {
-            for (Integer subId : epicTasksList.get(id).getEpicSubtasks()) {
+            for (Integer subId : getEpicById(id).getEpicSubtasks()) {
                     subTasksList.remove(subId);
             }
-            return;
+            epicTasksList.remove(id);
+        } else {
+            System.out.println("Неверно указан id Эпика");
         }
-        System.out.println("Неверно указан id задачи");
     }
 
 
