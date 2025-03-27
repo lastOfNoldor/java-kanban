@@ -1,6 +1,7 @@
 package main.model;
 import java.util.HashSet;
-import main.service.TaskManager;
+
+import main.service.InMemoryTaskManager;
 
 
 public class Epic extends Task {
@@ -21,10 +22,10 @@ public class Epic extends Task {
         boolean allNew = true;
         boolean allDone = true;
         for (Integer id : epicSubtasks) {
-            if (TaskManager.subTasksList.get(id).getTaskStatus() != TaskStatus.NEW) {
+            if (InMemoryTaskManager.subTasksList.get(id).getTaskStatus() != TaskStatus.NEW) {
                 allNew = false;
             }
-            if (TaskManager.subTasksList.get(id).getTaskStatus() != TaskStatus.DONE) {
+            if (InMemoryTaskManager.subTasksList.get(id).getTaskStatus() != TaskStatus.DONE) {
                 allDone = false;
             }
         }

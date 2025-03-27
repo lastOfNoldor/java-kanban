@@ -1,5 +1,5 @@
 package main.model;
-import main.service.TaskManager;
+import main.service.InMemoryTaskManager;
 
 
 public class Subtask extends Task {
@@ -7,9 +7,7 @@ public class Subtask extends Task {
 
     public Subtask(String name, String description, int EpicId) {
         super(name, description);
-        if (TaskManager.epicTasksList.get(EpicId) instanceof Epic currentEpic) {
-            currentEpic.getEpicSubtasks().add(getId());
-        }
+
         this.epicId = EpicId;
 
     }
