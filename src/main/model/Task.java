@@ -3,7 +3,7 @@ import main.service.InMemoryTaskManager;
 
 import java.util.Objects;
 
-public class Task {
+public class Task implements Cloneable {
 
     private String name;
     private String description;
@@ -11,7 +11,7 @@ public class Task {
     private TaskStatus taskStatus;
 
     public Task(String name, String description) {
-        this.id = ++InMemoryTaskManager.idCounter;
+        this.id = 0;
         this.name = name;
         this.description = description;
         taskStatus = TaskStatus.NEW;
@@ -19,6 +19,10 @@ public class Task {
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -57,6 +61,11 @@ public class Task {
     @Override
     public int hashCode() {
         return Objects.hash(name, description, id, taskStatus);
+    }
+
+    @Override
+    public Task clone() throws CloneNotSupportedException {
+        return (Task) super.clone();
     }
 }
 

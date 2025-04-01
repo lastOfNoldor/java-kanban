@@ -15,7 +15,7 @@ public interface TaskManager {
 
     void createTask(Task task);
 
-    void createSubTask(Subtask subtask);
+    void createSubTask(Subtask subtask, int epicId);
 
     void createEpic(Epic epic);
 
@@ -38,6 +38,8 @@ public interface TaskManager {
     void deleteEpic(int id);
 
     void printAllTasks();
+
+    HistoryManager getHistoryManager();
 
 
 }

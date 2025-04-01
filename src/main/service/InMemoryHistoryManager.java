@@ -16,7 +16,12 @@ public class InMemoryHistoryManager implements  HistoryManager{
             if (historyList.size() >= HISTORY_MAX_CAPACITY) {
                 historyList.removeFirst();
             }
-            historyList.add(task);
+
+            try {
+                historyList.add(task.clone());
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
