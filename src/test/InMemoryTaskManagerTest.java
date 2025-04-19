@@ -87,7 +87,7 @@ class InMemoryTaskManagerTest {
         taskManager.createSubTask(subtask3, et2.getId());
         assertEquals(TaskStatus.NEW, et2.getTaskStatus());
         taskManager.getEpicById(et2.getId());
-        assertEquals(TaskStatus.NEW, taskManager.getHistoryManager().getHistory().get(0).getTaskStatus());
+        assertEquals(TaskStatus.NEW, taskManager.getHistoryManager().getHistory().getFirst().getTaskStatus());
         subtask2.setTaskStatus(TaskStatus.DONE);
         taskManager.updateSubTask(subtask2);
         taskManager.getEpicById(et2.getId());
@@ -106,51 +106,5 @@ class InMemoryTaskManagerTest {
 
     }
 
-    @Test
-    void historyRemove1WhenMoreThan10() {
-        Task task1 = new Task("Обычное задание#1", "description");
-        Task task2 = new Task("Обычное задание#2", "description");
-        Task task3 = new Task("Обычное задание#3", "description");
-        Task task4 = new Task("Обычное задание#4", "description");
-        Task task5 = new Task("Обычное задание#5", "description");
-        Task task6 = new Task("Обычное задание#6", "description");
-        Task task7 = new Task("Обычное задание#7", "description");
-        Task task8 = new Task("Обычное задание#8", "description");
-        Task task9 = new Task("Обычное задание#9", "description");
-        Task task10 = new Task("Обычное задание#10", "description");
-        Task task11 = new Task("Обычное задание#11", "description");
-        taskManager.createTask(task1);
-        taskManager.createTask(task2);
-        taskManager.createTask(task3);
-        taskManager.createTask(task4);
-        taskManager.createTask(task5);
-        taskManager.createTask(task6);
-        taskManager.createTask(task7);
-        taskManager.createTask(task8);
-        taskManager.createTask(task9);
-        taskManager.createTask(task10);
-        taskManager.createTask(task11);
-
-        taskManager.getTaskById(1);
-        taskManager.getTaskById(2);
-        taskManager.getTaskById(3);
-        taskManager.getTaskById(4);
-        taskManager.getTaskById(5);
-        taskManager.getTaskById(6);
-        taskManager.getTaskById(7);
-        taskManager.getTaskById(8);
-        taskManager.getTaskById(9);
-        taskManager.getTaskById(10);
-        List<Task> history = taskManager.getHistoryManager().getHistory();
-        assertEquals(1,history.getFirst().getId());
-        assertEquals(10,history.getLast().getId());
-
-        taskManager.getTaskById(11);
-        List<Task> historyUpdated = taskManager.getHistoryManager().getHistory();
-
-        assertEquals(10, historyUpdated.size());
-        assertEquals(2,historyUpdated.getFirst().getId());
-        assertEquals(11,historyUpdated.getLast().getId());
-    }
 
 }

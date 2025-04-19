@@ -5,7 +5,7 @@ import main.service.InMemoryTaskManager;
 
 
 public class Epic extends Task {
-    private HashSet<Integer> epicSubtasks;
+    private final HashSet<Integer> epicSubtasks;
 
     public Epic(String name, String description) {
         super(name, description);
