@@ -39,7 +39,7 @@ public class InMemoryHistoryManager implements  HistoryManager{
         historyMap.put(task.getId(), newNode);
     }
 
-    public void removeNode(Node node) {
+    private void removeNode(Node node) {
         if (node == null) {
             return;
         }
@@ -56,15 +56,12 @@ public class InMemoryHistoryManager implements  HistoryManager{
         historyMap.remove(node);
     }
 
-    public List<Task> getTasks() {
+    private List<Task> getTasks() {
         ArrayList<Task> taskList = new ArrayList<>();
-        for (Node node : historyMap.values()) {
-
-            try {
-                taskList.add(node.task.clone());
-            } catch (CloneNotSupportedException e) {
-                throw new RuntimeException(e);
-            }
+        Node current = head;
+        while (current != null) {
+            taskList.add(current.task);
+            current = current.next;
         }
         return taskList;
     }
