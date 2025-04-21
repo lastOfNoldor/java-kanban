@@ -5,14 +5,12 @@ import main.model.Epic;
 import main.model.Subtask;
 import main.model.Task;
 import main.model.TaskStatus;
-import main.service.InMemoryTaskManager;
+
 import main.service.Managers;
 import main.service.TaskManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.util.List;
-
 
 
 class InMemoryTaskManagerTest {
@@ -22,6 +20,7 @@ class InMemoryTaskManagerTest {
     void init() {
         taskManager = Managers.getDefault();
     }
+
 
     @Test
     void tasksEqualsEachOther() {
@@ -39,8 +38,8 @@ class InMemoryTaskManagerTest {
         Epic epic = new Epic("Test addNewTask", "Test addNewTask description");
         taskManager.createEpic(epic);
         int id = epic.getId();
-        Task task2 = taskManager.getEpicById(id);
-        assertEquals(epic,task2);
+        Epic epic2 = taskManager.getEpicById(id);
+        assertEquals(epic,epic2);
 
     }
 
@@ -78,31 +77,25 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void historySavesPreviousConditionOfTaskIfItChangesAfter(){
-        Epic et2 = new Epic("Эпик#2", "description");
-        Subtask subtask2 = new Subtask("Первая Подзадача второго Эпика", "description");
-        Subtask subtask3 = new Subtask("Вторая Подзадача второго Эпика", "description");
-        taskManager.createEpic(et2);
-        taskManager.createSubTask(subtask2, et2.getId());
-        taskManager.createSubTask(subtask3, et2.getId());
-        assertEquals(TaskStatus.NEW, et2.getTaskStatus());
-        taskManager.getEpicById(et2.getId());
-        assertEquals(TaskStatus.NEW, taskManager.getHistoryManager().getHistory().getFirst().getTaskStatus());
-        subtask2.setTaskStatus(TaskStatus.DONE);
-        taskManager.updateSubTask(subtask2);
-        taskManager.getEpicById(et2.getId());
-        assertEquals(TaskStatus.NEW, taskManager.getHistoryManager().getHistory().get(0).getTaskStatus());
-        assertEquals(TaskStatus.IN_PROGRESS, taskManager.getHistoryManager().getHistory().get(1).getTaskStatus());
-
-    }
-
-
-    @Test
     void historyWorks(){
         Task task1 = new Task("Обычное задание#1", "description");
         taskManager.createTask(task1);
         taskManager.getTaskById(1);
-        assertEquals(1, ((InMemoryTaskManager) taskManager).getHistoryManager().getHistory().size());
+        assertEquals(1, taskManager.getHistoryManager().getHistory().size());
+
+    }
+
+    //new test
+    @Test
+    void wrapProtectsFromSetIdAndTaskStatus(){
+        Task task = new Task("Test addNewTask", "old");
+        taskManager.createTask(task);
+        taskManager.getTaskById(task.getId()).setId(1111);
+        taskManager.updateTask(task);
+        assertEquals(1,task.getId());
+        taskManager.getTaskById(1).setTaskStatus(TaskStatus.DONE);
+        taskManager.updateTask(task);
+        assertEquals(TaskStatus.NEW, task.getTaskStatus());
 
     }
 

@@ -4,8 +4,6 @@ import main.model.Epic;
 import main.model.Subtask;
 import main.model.Task;
 
-import java.util.List;
-
 public interface TaskManager {
     Task getTaskById(int id);
 

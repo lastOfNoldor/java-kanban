@@ -1,5 +1,5 @@
 package main.model;
-import main.service.InMemoryTaskManager;
+
 
 
 public class Subtask extends Task {
@@ -9,6 +9,13 @@ public class Subtask extends Task {
         super(name, description);
         this.epicId = 0;
 
+    }
+
+    protected Subtask(Subtask subtask) {
+        super(subtask.getName(),subtask.getDescription());
+        setId(subtask.getId());
+        setEpicId(subtask.getEpicId());
+        setTaskStatus(subtask.getTaskStatus());
     }
 
     public int getEpicId() {
@@ -29,8 +36,4 @@ public class Subtask extends Task {
                 getTaskStatus().toString().substring(1).toLowerCase();
     }
 
-    @Override
-    public Subtask clone() throws CloneNotSupportedException {
-        return (Subtask) super.clone();
-    }
 }

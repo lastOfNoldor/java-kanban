@@ -1,12 +1,11 @@
 package main.model;
-import main.service.InMemoryTaskManager;
 
 import java.util.Objects;
 
-public class Task implements Cloneable {
+public class Task {
 
-    private String name;
-    private String description;
+    private final String name;
+    private final String description;
     private int id;
     private TaskStatus taskStatus;
 
@@ -15,6 +14,13 @@ public class Task implements Cloneable {
         this.name = name;
         this.description = description;
         taskStatus = TaskStatus.NEW;
+    }
+
+    protected Task(Task task) {
+        this.id = task.getId();
+        this.name = task.getName();
+        this.description = task.getDescription();
+        this.taskStatus = task.getTaskStatus();
     }
 
     public int getId() {
@@ -41,6 +47,16 @@ public class Task implements Cloneable {
         this.taskStatus = taskStatus;
     }
 
+    public static Task copy(Task task) {
+        if (task instanceof Subtask) {
+            return new Subtask((Subtask) task);
+        } else if (task instanceof Epic) {
+            return new Epic((Epic) task);
+        } else {
+            return new Task(task);
+        }
+    }
+
     @Override
     public String toString() {
         return "ID: " + getId() +
@@ -63,9 +79,5 @@ public class Task implements Cloneable {
         return Objects.hash(name, description, id, taskStatus);
     }
 
-    @Override
-    public Task clone() throws CloneNotSupportedException {
-        return (Task) super.clone();
-    }
 }
 

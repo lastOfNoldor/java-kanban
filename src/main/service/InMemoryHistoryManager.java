@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class InMemoryHistoryManager implements  HistoryManager{
+public class InMemoryHistoryManager implements  HistoryManager {
     private final HashMap<Integer,Node> historyMap = new HashMap<>();
     private Node head;
     private Node tail;
@@ -39,7 +39,7 @@ public class InMemoryHistoryManager implements  HistoryManager{
         historyMap.put(task.getId(), newNode);
     }
 
-    public void removeNode(Node node) {
+    private void removeNode(Node node) {
         if (node == null) {
             return;
         }
@@ -56,15 +56,12 @@ public class InMemoryHistoryManager implements  HistoryManager{
         historyMap.remove(node);
     }
 
-    public List<Task> getTasks() {
+    private List<Task> getTasks() {
         ArrayList<Task> taskList = new ArrayList<>();
-        for (Node node : historyMap.values()) {
-
-            try {
-                taskList.add(node.task.clone());
-            } catch (CloneNotSupportedException e) {
-                throw new RuntimeException(e);
-            }
+        Node current = head;
+        while (current != null) {
+            taskList.add(current.task);
+            current = current.next;
         }
         return taskList;
     }
@@ -74,18 +71,19 @@ public class InMemoryHistoryManager implements  HistoryManager{
         return List.copyOf(getTasks());
     }
 
-}
+    public class Node {
 
-class Node {
-
-    Task task;
-    Node prev;
-    Node next;
+        Task task;
+        Node prev;
+        Node next;
 
 
-    public Node(Task task, Node prev, Node next) {
-        this.task = task;
-        this.prev = prev;
-        this.next = next;
+        public Node(Task task, Node prev, Node next) {
+            this.task = task;
+            this.prev = prev;
+            this.next = next;
+        }
     }
+
 }
+

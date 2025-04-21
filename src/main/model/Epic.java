@@ -1,7 +1,6 @@
 package main.model;
 import java.util.HashSet;
 
-import main.service.InMemoryTaskManager;
 
 
 public class Epic extends Task {
@@ -11,6 +10,12 @@ public class Epic extends Task {
         super(name, description);
         this.epicSubtasks = new HashSet<>();
 
+    }
+
+    protected Epic(Epic epic) {
+        super(epic.getName(), epic.getDescription());
+        setId(epic.getId());
+        this.epicSubtasks = epic.getEpicSubtasks();
     }
 
 
@@ -29,8 +34,4 @@ public class Epic extends Task {
                 getTaskStatus().toString().substring(1).toLowerCase();
     }
 
-    @Override
-    public Epic clone() throws CloneNotSupportedException {
-        return (Epic) super.clone();
-    }
 }
