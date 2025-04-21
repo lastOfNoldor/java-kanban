@@ -20,7 +20,6 @@ class InMemoryTaskManagerTest {
         taskManager = Managers.getDefault();
     }
 
-
     @Test
     void tasksEqualsEachOther() {
         Task task = new Task("Test addNewTask", "Test addNewTask description");
