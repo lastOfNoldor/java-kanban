@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> regularTasksList = new HashMap<>();
-    private final HashMap<Integer, Subtask > subTasksList = new HashMap<>();
+    private final HashMap<Integer, Subtask> subTasksList = new HashMap<>();
     private final HashMap<Integer, Epic> epicTasksList = new HashMap<>();
     private int idCounter = 0;
     private final HistoryManager historyManager = Managers.getDefaultHistory();
@@ -19,7 +19,7 @@ public class InMemoryTaskManager implements TaskManager {
     public Task getTaskById(int id) {
         if (regularTasksList.containsKey(id)) {
             historyManager.add(regularTasksList.get(id));
-            return regularTasksList.get(id);
+            return Task.copy(regularTasksList.get(id));
         }
         System.out.println("Неверно указан id обычной задачи");
         return null;
@@ -29,7 +29,7 @@ public class InMemoryTaskManager implements TaskManager {
     public Subtask getSubTaskById(int id) {
         if (subTasksList.containsKey(id)) {
             historyManager.add(subTasksList.get(id));
-            return subTasksList.get(id);
+            return (Subtask) Task.copy(subTasksList.get(id));
         }
         System.out.println("Неверно указан id подзадачи");
         return null;
@@ -39,7 +39,7 @@ public class InMemoryTaskManager implements TaskManager {
     public Epic getEpicById(int id) {
         if (epicTasksList.containsKey(id)) {
             historyManager.add(epicTasksList.get(id));
-            return epicTasksList.get(id);
+            return (Epic) Task.copy(epicTasksList.get(id));
         }
         System.out.println("Неверно указан id Эпика");
         return null;
@@ -97,26 +97,37 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearTasks() {
+        for (Integer id : regularTasksList.keySet()) {
+            historyManager.remove(id);
+        }
         regularTasksList.clear();
         System.out.println("Все задачи типа Task удалены");
     }
 
     @Override
     public void clearSubTasks() {
-        for (Integer id : subTasksList.keySet()) {
-            Subtask currentSubtask = getSubTaskById(id);
-            Epic currentEpic = getEpicById(currentSubtask.getEpicId());
-            currentEpic.getEpicSubtasks().remove(id);
+        for (Subtask currentSubtask : subTasksList.values()) {
+            Epic currentEpic = epicTasksList.get(currentSubtask.getEpicId());
+            currentEpic.getEpicSubtasks().remove(currentSubtask.getId());
         }
+        for (Integer id : subTasksList.keySet()) {
+            historyManager.remove(id);
+        }
+        subTasksList.clear();
         for (Integer id : epicTasksList.keySet()) {
             updateEpicStatus(id);
         }
-        subTasksList.clear();
         System.out.println("Все задачи типа Subtask удалены, статус всех Эпиков автоматически обновлен");
     }
 
     @Override
     public void clearEpicTasks() {
+        for (Integer id : subTasksList.keySet()) {
+            historyManager.remove(id);
+        }
+        for (Integer id : epicTasksList.keySet()) {
+            historyManager.remove(id);
+        }
         subTasksList.clear();
         epicTasksList.clear();
         System.out.println("Все задачи типа Epic удалены (и все SubTask вместе с ними)");
@@ -126,6 +137,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteTask(int id) {
         if (regularTasksList.containsKey(id)) {
+            historyManager.remove(id);
             regularTasksList.remove(id);
         } else {
             System.out.println("Неверно указан id обычной задачи");
@@ -135,7 +147,8 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteSubTask(int id) {
         if (subTasksList.containsKey(id)) {
-            Subtask currentSubtask = getSubTaskById(id);
+            historyManager.remove(id);
+            Subtask currentSubtask = subTasksList.get(id);
             Epic currentEpic = epicTasksList.get(currentSubtask.getEpicId());
             currentEpic.getEpicSubtasks().remove(id);
             subTasksList.remove(id);
@@ -150,8 +163,10 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteEpic(int id) {
         if (epicTasksList.containsKey(id)) {
             for (Integer subId : epicTasksList.get(id).getEpicSubtasks()) {
-                    subTasksList.remove(subId);
+                historyManager.remove(subId);
+                subTasksList.remove(subId);
             }
+            historyManager.remove(id);
             epicTasksList.remove(id);
         } else {
             System.out.println("Неверно указан id Эпика");
@@ -173,7 +188,7 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println(subtask);
         }
         System.out.println("История:");
-        for ( Task task : historyManager.getHistory()) {
+        for (Task task : historyManager.getHistory()) {
             System.out.println(task);
         }
     }
