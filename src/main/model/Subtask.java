@@ -10,7 +10,7 @@ public class Subtask extends Task {
 
     }
 
-    protected Subtask(Subtask subtask) {
+    public Subtask(Subtask subtask) {
         super(subtask.getName(), subtask.getDescription());
         setId(subtask.getId());
         setEpicId(subtask.getEpicId());
@@ -27,12 +27,7 @@ public class Subtask extends Task {
 
     @Override
     public String toString() {
-        return "ID: " + getId() +
-                ". Название: " + getName() +
-                " Описание: " + getDescription() +
-                " Подзадача Эпика с id: " + getEpicId() +
-                ". Status: " + getTaskStatus().toString().charAt(0) +
-                getTaskStatus().toString().substring(1).toLowerCase();
+        return "ID: " + getId() + ". Название: " + getName() + " Описание: " + getDescription() + " Подзадача Эпика с id: " + getEpicId() + ". Status: " + getTaskStatus().toString().charAt(0) + getTaskStatus().toString().substring(1).toLowerCase();
     }
 
 }

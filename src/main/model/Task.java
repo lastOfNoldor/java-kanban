@@ -1,7 +1,5 @@
 package main.model;
 
-import java.util.Objects;
-
 public class Task {
 
     private final String name;
@@ -16,7 +14,7 @@ public class Task {
         taskStatus = TaskStatus.NEW;
     }
 
-    protected Task(Task task) {
+    public Task(Task task) {
         this.id = task.getId();
         this.name = task.getName();
         this.description = task.getDescription();
@@ -47,16 +45,6 @@ public class Task {
         this.taskStatus = taskStatus;
     }
 
-    public static Task copy(Task task) {
-        if (task instanceof Subtask) {
-            return new Subtask((Subtask) task);
-        } else if (task instanceof Epic) {
-            return new Epic((Epic) task);
-        } else {
-            return new Task(task);
-        }
-    }
-
     @Override
     public String toString() {
         return "ID: " + getId() + ". Название: " + getName() + " Описание: " + getDescription() + " Status: " + getTaskStatus().toString().charAt(0) + getTaskStatus().toString().substring(1).toLowerCase();
@@ -67,12 +55,12 @@ public class Task {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return id == task.id && Objects.equals(name, task.name) && Objects.equals(description, task.description) && taskStatus == task.taskStatus;
+        return id == task.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, id, taskStatus);
+        return id;
     }
 
 }

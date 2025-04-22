@@ -50,13 +50,13 @@ class InMemoryTaskManagerTest {
         assertEquals(TaskStatus.NEW, et1.getTaskStatus());
         subtask1.setTaskStatus(TaskStatus.IN_PROGRESS);
         taskManager.updateSubTask(subtask1);
-        assertEquals(TaskStatus.IN_PROGRESS, et1.getTaskStatus());
+        assertEquals(TaskStatus.IN_PROGRESS, taskManager.getEpicById(et1.getId()).getTaskStatus());
         taskManager.clearSubTasks();
-        assertEquals(TaskStatus.NEW, et1.getTaskStatus());
+        assertEquals(TaskStatus.NEW, taskManager.getEpicById(et1.getId()).getTaskStatus());
         taskManager.createSubTask(subtask1, et1.getId());
-        assertEquals(TaskStatus.IN_PROGRESS, et1.getTaskStatus());
+        assertEquals(TaskStatus.IN_PROGRESS, taskManager.getEpicById(et1.getId()).getTaskStatus());
         taskManager.deleteSubTask(subtask1.getId());
-        assertEquals(TaskStatus.NEW, et1.getTaskStatus());
+        assertEquals(TaskStatus.NEW, taskManager.getEpicById(et1.getId()).getTaskStatus());
     }
 
     @Test
@@ -70,7 +70,7 @@ class InMemoryTaskManagerTest {
         assertEquals(TaskStatus.NEW, et2.getTaskStatus());
         subtask2.setTaskStatus(TaskStatus.DONE);
         taskManager.updateSubTask(subtask2);
-        assertEquals(TaskStatus.IN_PROGRESS, et2.getTaskStatus());
+        assertEquals(TaskStatus.IN_PROGRESS, taskManager.getEpicById(et2.getId()).getTaskStatus());
 
     }
 
@@ -84,6 +84,7 @@ class InMemoryTaskManagerTest {
     }
 
     //new test
+
     @Test
     void wrapProtectsFromSetIdAndTaskStatus() {
         Task task = new Task("Test addNewTask", "old");
@@ -91,11 +92,10 @@ class InMemoryTaskManagerTest {
         taskManager.getTaskById(task.getId()).setId(1111);
         taskManager.updateTask(task);
         assertEquals(1, task.getId());
-        taskManager.getTaskById(1).setTaskStatus(TaskStatus.DONE);
+        taskManager.getTaskById(task.getId()).setTaskStatus(TaskStatus.DONE);
         taskManager.updateTask(task);
-        assertEquals(TaskStatus.NEW, task.getTaskStatus());
+        assertEquals(TaskStatus.NEW, taskManager.getTaskById(task.getId()).getTaskStatus());
 
     }
-
 
 }

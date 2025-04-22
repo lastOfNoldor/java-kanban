@@ -12,9 +12,10 @@ public class Epic extends Task {
 
     }
 
-    protected Epic(Epic epic) {
+    public Epic(Epic epic) {
         super(epic.getName(), epic.getDescription());
         setId(epic.getId());
+        setTaskStatus(epic.getTaskStatus());
         this.epicSubtasks = epic.getEpicSubtasks();
     }
 

@@ -5,10 +5,11 @@ import main.model.Task;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private final HashMap<Integer, Node> historyMap = new HashMap<>();
+    private final Map<Integer, Node> historyMap = new HashMap<>();
     private Node head;
     private Node tail;
 
@@ -28,7 +29,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         removeNode(node);
     }
 
-    public void linkLast(Task task) {
+    private void linkLast(Task task) {
         Node newNode = new Node(task, tail, null);
         if (head == null) {
             head = newNode;
@@ -72,7 +73,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         return List.copyOf(getTasks());
     }
 
-    public class Node {
+    private static class Node {
 
         Task task;
         Node prev;
