@@ -1,12 +1,9 @@
 package main.model;
-import main.service.InMemoryTaskManager;
 
-import java.util.Objects;
+public class Task {
 
-public class Task implements Cloneable {
-
-    private String name;
-    private String description;
+    private final String name;
+    private final String description;
     private int id;
     private TaskStatus taskStatus;
 
@@ -15,6 +12,13 @@ public class Task implements Cloneable {
         this.name = name;
         this.description = description;
         taskStatus = TaskStatus.NEW;
+    }
+
+    public Task(Task task) {
+        this.id = task.getId();
+        this.name = task.getName();
+        this.description = task.getDescription();
+        this.taskStatus = task.getTaskStatus();
     }
 
     public int getId() {
@@ -43,11 +47,7 @@ public class Task implements Cloneable {
 
     @Override
     public String toString() {
-        return "ID: " + getId() +
-                ". Название: " + getName() +
-                " Описание: " + getDescription() +
-                " Status: " + getTaskStatus().toString().charAt(0) +
-                getTaskStatus().toString().substring(1).toLowerCase();
+        return "ID: " + getId() + ". Название: " + getName() + " Описание: " + getDescription() + " Status: " + getTaskStatus().toString().charAt(0) + getTaskStatus().toString().substring(1).toLowerCase();
     }
 
     @Override
@@ -55,17 +55,13 @@ public class Task implements Cloneable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return id == task.id && Objects.equals(name, task.name) && Objects.equals(description, task.description) && taskStatus == task.taskStatus;
+        return id == task.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, id, taskStatus);
+        return id;
     }
 
-    @Override
-    public Task clone() throws CloneNotSupportedException {
-        return (Task) super.clone();
-    }
 }
 
