@@ -226,5 +226,16 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager;
     }
 
+    protected Map<Integer, Task> getRegularTasksList() {
+        return regularTasksList;
+    }
+
+    protected Map<Integer, Epic> getEpicTasksList() {
+        return epicTasksList;
+    }
+
+    protected Map<Integer, Subtask> getSubTasksTasksList() {
+        return subTasksList;
+    }
 
 }
