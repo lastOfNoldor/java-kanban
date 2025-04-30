@@ -20,13 +20,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try (FileWriter writer = new FileWriter(saveFile)) {
             String example = "id,type,name,status,description,epic\n";
             writer.write(example);
-            for (Task task : getRegularTasksList().values()) {
+            for (Task task : getRegularTasksList()) {
                 writer.write(toString(task) + "\n");
             }
-            for (Task task : getEpicTasksList().values()) {
+            for (Task task : getEpicTasksList()) {
                 writer.write(toString(task) + "\n");
             }
-            for (Task task : getSubTasksTasksList().values()) {
+            for (Task task : getSubTasksTasksList()) {
                 writer.write(toString(task) + "\n");
             }
         } catch (IOException e) {
@@ -40,7 +40,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
         StringBuilder sb = new StringBuilder();
         sb.append(task.getId()).append(",").append(TaskEnum.valueOf(task.getClass().getSimpleName().toUpperCase())).append(",").append(task.getName()).append(",").append(task.getTaskStatus()).append(",").append(task.getDescription());
-        if (task instanceof Subtask) {
+        if (TaskEnum.valueOf(task.getClass().getSimpleName().toUpperCase()) == TaskEnum.SUBTASK) {
             sb.append(",");
             sb.append(((Subtask) task).getEpicId());
         }
@@ -67,7 +67,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
         result.setTaskStatus(status);
         result.setId(id);
-        if (result instanceof Subtask) {
+        if (TaskEnum.valueOf(result.getClass().getSimpleName().toUpperCase()) == TaskEnum.SUBTASK) {
             ((Subtask) result).setEpicId(Integer.parseInt(data[5]));
         }
         return result;
@@ -89,12 +89,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             if (task == null) {
                 continue;
             }
-            if (task instanceof Subtask subtask) {
-                manager.getSubTasksTasksList().put(subtask.getId(), subtask);
-            } else if (task instanceof Epic epic) {
-                manager.getEpicTasksList().put(epic.getId(), epic);
+            if (TaskEnum.valueOf(task.getClass().getSimpleName().toUpperCase()) == TaskEnum.SUBTASK) {
+                manager.createSubTask((Subtask) task, ((Subtask) task).getEpicId());
+            } else if (TaskEnum.valueOf(task.getClass().getSimpleName().toUpperCase()) == TaskEnum.EPIC) {
+                manager.createEpic((Epic) task);
             } else {
-                manager.getRegularTasksList().put(task.getId(), task);
+                manager.createTask(task);
             }
         }
         return manager;

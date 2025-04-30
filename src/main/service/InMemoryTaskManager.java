@@ -5,7 +5,9 @@ import main.model.Subtask;
 import main.model.Task;
 import main.model.TaskStatus;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -48,24 +50,30 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void createTask(Task task) {
-        task.setId(++idCounter);
+        if (task.getId() == 0) {
+            task.setId(++idCounter);
+        }
         regularTasksList.put(task.getId(), new Task(task));
     }
 
     @Override
     public void createSubTask(Subtask subtask, int epicId) {
-        if (epicTasksList.get(epicId) instanceof Epic currentEpic) {
-            subtask.setId(++idCounter);
-            subtask.setEpicId(epicId);
+        if (TaskEnum.valueOf(epicTasksList.get(epicId).getClass().getSimpleName().toUpperCase()) == TaskEnum.EPIC) {
+            if (subtask.getId() == 0) {
+                subtask.setId(++idCounter);
+                subtask.setEpicId(epicId);
+            }
             subTasksList.put(subtask.getId(), new Subtask(subtask));
-            currentEpic.getEpicSubtasks().add(subtask.getId());
+            epicTasksList.get(epicId).getEpicSubtasks().add(subtask.getId());
             updateEpicStatus(subtask.getEpicId());
         }
     }
 
     @Override
     public void createEpic(Epic epic) {
-        epic.setId(++idCounter);
+        if (epic.getId() == 0) {
+            epic.setId(++idCounter);
+        }
         epicTasksList.put(epic.getId(), new Epic(epic));
     }
 
@@ -226,16 +234,17 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager;
     }
 
-    public Map<Integer, Task> getRegularTasksList() {
-        return regularTasksList;
+    public List<Task> getRegularTasksList() {
+
+        return new ArrayList<>(regularTasksList.values());
     }
 
-    public Map<Integer, Epic> getEpicTasksList() {
-        return epicTasksList;
+    public List<Epic> getEpicTasksList() {
+        return new ArrayList<>(epicTasksList.values());
     }
 
-    public Map<Integer, Subtask> getSubTasksTasksList() {
-        return subTasksList;
+    public List<Subtask> getSubTasksTasksList() {
+        return new ArrayList<>(subTasksList.values());
     }
 
 }
