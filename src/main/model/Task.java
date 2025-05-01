@@ -1,5 +1,7 @@
 package main.model;
 
+import main.service.TaskType;
+
 public class Task {
 
     private final String name;
@@ -19,6 +21,10 @@ public class Task {
         this.name = task.getName();
         this.description = task.getDescription();
         this.taskStatus = task.getTaskStatus();
+    }
+
+    public TaskType getTaskType() {
+        return TaskType.TASK;
     }
 
     public int getId() {
