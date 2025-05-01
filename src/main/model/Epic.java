@@ -1,5 +1,7 @@
 package main.model;
 
+import main.service.TaskEnum;
+
 import java.util.HashSet;
 
 
@@ -19,6 +21,10 @@ public class Epic extends Task {
         this.epicSubtasks = epic.getEpicSubtasks();
     }
 
+    @Override
+    public TaskEnum getTaskType() {
+        return TaskEnum.EPIC;
+    }
 
     public HashSet<Integer> getEpicSubtasks() {
         return epicSubtasks;

@@ -1,6 +1,8 @@
 package main.model;
 
 
+import main.service.TaskEnum;
+
 public class Subtask extends Task {
     private int epicId;
 
@@ -15,6 +17,11 @@ public class Subtask extends Task {
         setId(subtask.getId());
         setEpicId(subtask.getEpicId());
         setTaskStatus(subtask.getTaskStatus());
+    }
+
+    @Override
+    public TaskEnum getTaskType() {
+        return TaskEnum.SUBTASK;
     }
 
     public int getEpicId() {

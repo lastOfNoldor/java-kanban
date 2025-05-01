@@ -39,8 +39,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             return null;
         }
         StringBuilder sb = new StringBuilder();
-        sb.append(task.getId()).append(",").append(TaskEnum.valueOf(task.getClass().getSimpleName().toUpperCase())).append(",").append(task.getName()).append(",").append(task.getTaskStatus()).append(",").append(task.getDescription());
-        if (TaskEnum.valueOf(task.getClass().getSimpleName().toUpperCase()) == TaskEnum.SUBTASK) {
+        sb.append(task.getId()).append(",").append(task.getTaskType()).append(",").append(task.getName()).append(",").append(task.getTaskStatus()).append(",").append(task.getDescription());
+        if (task.getTaskType() == TaskEnum.SUBTASK) {
             sb.append(",");
             sb.append(((Subtask) task).getEpicId());
         }
@@ -67,7 +67,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
         result.setTaskStatus(status);
         result.setId(id);
-        if (TaskEnum.valueOf(result.getClass().getSimpleName().toUpperCase()) == TaskEnum.SUBTASK) {
+        if (result.getTaskType() == TaskEnum.SUBTASK) {
             ((Subtask) result).setEpicId(Integer.parseInt(data[5]));
         }
         return result;
@@ -89,9 +89,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             if (task == null) {
                 continue;
             }
-            if (TaskEnum.valueOf(task.getClass().getSimpleName().toUpperCase()) == TaskEnum.SUBTASK) {
+            if (task.getTaskType() == TaskEnum.SUBTASK) {
                 manager.createSubTask((Subtask) task, ((Subtask) task).getEpicId());
-            } else if (TaskEnum.valueOf(task.getClass().getSimpleName().toUpperCase()) == TaskEnum.EPIC) {
+            } else if (task.getTaskType() == TaskEnum.EPIC) {
                 manager.createEpic((Epic) task);
             } else {
                 manager.createTask(task);
