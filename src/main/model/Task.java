@@ -1,6 +1,6 @@
 package main.model;
 
-import main.service.TaskEnum;
+import main.service.TaskType;
 
 public class Task {
 
@@ -23,8 +23,8 @@ public class Task {
         this.taskStatus = task.getTaskStatus();
     }
 
-    public TaskEnum getTaskType() {
-        return TaskEnum.TASK;
+    public TaskType getTaskType() {
+        return TaskType.TASK;
     }
 
     public int getId() {

@@ -1,6 +1,6 @@
 package main.model;
 
-import main.service.TaskEnum;
+import main.service.TaskType;
 
 import java.util.HashSet;
 
@@ -22,8 +22,8 @@ public class Epic extends Task {
     }
 
     @Override
-    public TaskEnum getTaskType() {
-        return TaskEnum.EPIC;
+    public TaskType getTaskType() {
+        return TaskType.EPIC;
     }
 
     public HashSet<Integer> getEpicSubtasks() {

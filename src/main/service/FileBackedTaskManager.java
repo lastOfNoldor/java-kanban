@@ -40,7 +40,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
         StringBuilder sb = new StringBuilder();
         sb.append(task.getId()).append(",").append(task.getTaskType()).append(",").append(task.getName()).append(",").append(task.getTaskStatus()).append(",").append(task.getDescription());
-        if (task.getTaskType() == TaskEnum.SUBTASK) {
+        if (task.getTaskType() == TaskType.SUBTASK) {
             sb.append(",");
             sb.append(((Subtask) task).getEpicId());
         }
@@ -60,14 +60,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         TaskStatus status = TaskStatus.valueOf(data[3]);
         String description = data[4];
         Task result = null;
-        switch (TaskEnum.valueOf(data[1])) {
+        switch (TaskType.valueOf(data[1])) {
             case TASK -> result = new Task(name, description);
             case EPIC -> result = new Epic(name, description);
             case SUBTASK -> result = new Subtask(name, description);
         }
         result.setTaskStatus(status);
         result.setId(id);
-        if (result.getTaskType() == TaskEnum.SUBTASK) {
+        if (result.getTaskType() == TaskType.SUBTASK) {
             ((Subtask) result).setEpicId(Integer.parseInt(data[5]));
         }
         return result;
@@ -89,9 +89,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             if (task == null) {
                 continue;
             }
-            if (task.getTaskType() == TaskEnum.SUBTASK) {
+            if (task.getTaskType() == TaskType.SUBTASK) {
                 manager.createSubTask((Subtask) task, ((Subtask) task).getEpicId());
-            } else if (task.getTaskType() == TaskEnum.EPIC) {
+            } else if (task.getTaskType() == TaskType.EPIC) {
                 manager.createEpic((Epic) task);
             } else {
                 manager.createTask(task);

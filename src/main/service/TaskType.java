@@ -1,5 +1,5 @@
 package main.service;
 
-public enum TaskEnum {
+public enum TaskType {
     TASK, EPIC, SUBTASK
 }
