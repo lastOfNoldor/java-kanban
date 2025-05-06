@@ -53,7 +53,7 @@ public class FileBackedTaskManagerTest {
     }
 
     @Test
-    void dataWritesInFileAndLoadsFromItSuccessfully() {
+    void dataWritesInFileAndLoadsFromItSuccessfullyAndNextTaskIdWritesProperly() {
         FileBackedTaskManager taskManager = new FileBackedTaskManager(tempFile);
         task = new Task("Task1", "Test description");
         taskManager.createTask(task);
@@ -71,5 +71,10 @@ public class FileBackedTaskManagerTest {
         assertEquals(5, testManager.getRegularTasksList().size() + testManager.getSubTasksTasksList().size() + testManager.getEpicTasksList().size());
         assertEquals(2, testManager.getEpicById(epic1.getId()).getEpicSubtasks().size());
         System.out.println(testManager.getEpicById(epic1.getId()).getEpicSubtasks().size());
+        Subtask subtaskAfterLoad = new Subtask("Subtask after load", "Test Subtask description");
+        testManager.createSubTask(subtaskAfterLoad, epic1.getId());
+        assertEquals(6, subtaskAfterLoad.getId());
+        assertEquals(3, testManager.getEpicById(epic1.getId()).getEpicSubtasks().size());
+        testManager.printAllTasks();
     }
 }

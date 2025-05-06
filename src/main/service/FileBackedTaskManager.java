@@ -75,6 +75,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public static FileBackedTaskManager loadFromFile(File file) {
         FileBackedTaskManager manager = new FileBackedTaskManager(file);
+        int counter = 0;
         List<String> data = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             reader.readLine();   //пропускаю первую строку "id,type,name,status,description,epic";
@@ -89,14 +90,20 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             if (task == null) {
                 continue;
             }
+            if (counter < task.getId()) {
+                counter = task.getId();
+            }
             if (task.getTaskType() == TaskType.SUBTASK) {
-                manager.createSubTask((Subtask) task, ((Subtask) task).getEpicId());
+                manager.subTasksList.put(task.getId(), (Subtask) task);
+                manager.epicTasksList.get(((Subtask) task).getEpicId()).getEpicSubtasks().add(task.getId());
+                manager.updateEpicStatus(((Subtask) task).getEpicId());
             } else if (task.getTaskType() == TaskType.EPIC) {
-                manager.createEpic((Epic) task);
+                manager.epicTasksList.put(task.getId(), (Epic) task);
             } else {
-                manager.createTask(task);
+                manager.regularTasksList.put(task.getId(), task);
             }
         }
+        manager.setIdCounter(counter);
         return manager;
     }
 
