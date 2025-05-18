@@ -114,10 +114,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearSubTasks() {
-        for (Subtask currentSubtask : subTasksList.values()) {
-            Epic currentEpic = epicTasksList.get(currentSubtask.getEpicId());
-            currentEpic.getEpicSubtasks().remove(currentSubtask.getId());
-        }
+        subTasksList.values().forEach(subtask -> {
+            Epic epic = epicTasksList.get(subtask.getEpicId());
+            epic.getEpicSubtasks().remove(subtask.getId());
+        });
         for (Integer id : subTasksList.keySet()) {
             historyManager.remove(id);
         }
@@ -203,31 +203,28 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-
     protected void updateEpicStatus(int epicId) {
         Epic epic = epicTasksList.get(epicId);
-        if (epic.getEpicSubtasks().isEmpty()) {
+        List<TaskStatus> statuses = getEpicSubtaskStatuses(epic);
+        if (isAllNew(statuses) || statuses.isEmpty()) {
             epic.setTaskStatus(TaskStatus.NEW);
-            return;
-        }
-        boolean allNew = true;
-        boolean allDone = true;
-        for (Integer id : epic.getEpicSubtasks()) {
-            if (subTasksList.get(id).getTaskStatus() != TaskStatus.NEW) {
-                allNew = false;
-            }
-            if (subTasksList.get(id).getTaskStatus() != TaskStatus.DONE) {
-                allDone = false;
-            }
-        }
-        if (allNew) {
-            epic.setTaskStatus(TaskStatus.NEW);
-        } else if (allDone) {
+        } else if (isAllDone(statuses)) {
             epic.setTaskStatus(TaskStatus.DONE);
         } else {
             epic.setTaskStatus(TaskStatus.IN_PROGRESS);
         }
+    }
 
+    private boolean isAllNew(List<TaskStatus> statuses) {
+        return statuses.stream().allMatch(status -> status == TaskStatus.NEW);
+    }
+
+    private boolean isAllDone(List<TaskStatus> statuses) {
+        return statuses.stream().allMatch(status -> status == TaskStatus.DONE);
+    }
+
+    private List<TaskStatus> getEpicSubtaskStatuses(Epic epic) {
+        return epic.getEpicSubtasks().stream().map(subTasksList::get).map(Task::getTaskStatus).toList();
     }
 
     protected void updateEpicTime(int epicId) {

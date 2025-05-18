@@ -100,7 +100,22 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public static FileBackedTaskManager loadFromFile(File file) {
         FileBackedTaskManager manager = new FileBackedTaskManager(file);
-        int counter = 0;
+        List<String> data = loadData(file);
+        fillTaskLists(manager, data);
+        List<Integer> subtasksIds = getSubtaskEpicIds(manager, data);
+        loadEpicsData(manager, subtasksIds);
+        return manager;
+    }
+
+    public static void loadEpicsData(FileBackedTaskManager manager, List<Integer> subtasksIds) {
+        for (Integer id : subtasksIds) {
+            manager.epicTasksList.get(id).getEpicSubtasks().add(id);
+            manager.updateEpicStatus(id);
+            manager.updateEpicTime(id);
+        }
+    }
+
+    public static List<String> loadData(File file) {
         List<String> data = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             reader.readLine();   //пропускаю первую строку "id,type,name,status,description,epic";
@@ -110,6 +125,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        return data;
+    }
+
+    private static List<Integer> getSubtaskEpicIds(FileBackedTaskManager manager, List<String> data) {
+        return data.stream().map(manager::fromString).filter(task -> task.getTaskType() == TaskType.SUBTASK).map(task -> (Subtask) task).map(Subtask::getEpicId).toList();
+    }
+
+    private static void fillTaskLists(FileBackedTaskManager manager, List<String> data) {
+        int counter = 0;
         for (String datum : data) {
             Task task = manager.fromString(datum);
             if (task == null) {
@@ -118,21 +142,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             if (counter < task.getId()) {
                 counter = task.getId();
             }
-            if (task.getTaskType() == TaskType.SUBTASK) {
-                manager.subTasksList.put(task.getId(), (Subtask) task);
-                manager.epicTasksList.get(((Subtask) task).getEpicId()).getEpicSubtasks().add(task.getId());
-                manager.updateEpicStatus(((Subtask) task).getEpicId());
-                manager.updateEpicTime(((Subtask) task).getEpicId());
-            } else if (task.getTaskType() == TaskType.EPIC) {
-                manager.epicTasksList.put(task.getId(), (Epic) task);
-            } else {
-                manager.regularTasksList.put(task.getId(), task);
+            switch (task.getTaskType()) {
+                case SUBTASK -> manager.subTasksList.put(task.getId(), (Subtask) task);
+                case EPIC -> manager.epicTasksList.put(task.getId(), (Epic) task);
+                default -> manager.regularTasksList.put(task.getId(), task);
             }
         }
         manager.setIdCounter(counter);
-        return manager;
     }
-
 
     @Override
     public void createTask(Task task) {
