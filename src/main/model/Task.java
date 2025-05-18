@@ -16,13 +16,13 @@ public class Task {
     private LocalDateTime startTime;
 
 
-    public Task(String name, String description, Duration duration, LocalDateTime startTime) {
+    public Task(String name, String description, LocalDateTime startTime, Duration duration) {
         this.id = 0;
         this.name = name;
         this.description = description;
         taskStatus = TaskStatus.NEW;
-        this.duration = duration;
         this.startTime = startTime;
+        this.duration = duration;
     }
 
     public Task(Task task) {
@@ -30,8 +30,8 @@ public class Task {
         this.name = task.getName();
         this.description = task.getDescription();
         this.taskStatus = task.getTaskStatus();
-        this.duration = task.duration;
         this.startTime = task.startTime;
+        this.duration = task.duration;
     }
 
     public Optional<LocalDateTime> getEndTime() {
@@ -82,7 +82,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return "ID: " + getId() + ". Название: " + getName() + " Описание: " + getDescription() + " Status: " + getTaskStatus().toString().charAt(0) + getTaskStatus().toString().substring(1).toLowerCase();
+        return "ID: " + getId() + ". Название: " + getName() + " Описание: " + getDescription() + " Время старта: " + getStartTime() + " Продолжительность: " + getDuration() + "Время завершения: " + getEndTime() + " Статус: " + getTaskStatus().toString().charAt(0) + getTaskStatus().toString().substring(1).toLowerCase();
     }
 
     @Override
