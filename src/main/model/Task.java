@@ -2,18 +2,27 @@ package main.model;
 
 import main.service.TaskType;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 public class Task {
 
     private final String name;
     private final String description;
     private int id;
     private TaskStatus taskStatus;
+    private Duration duration;
+    private LocalDateTime startTime;
 
-    public Task(String name, String description) {
+
+    public Task(String name, String description, Duration duration, LocalDateTime startTime) {
         this.id = 0;
         this.name = name;
         this.description = description;
         taskStatus = TaskStatus.NEW;
+        this.duration = duration;
+        this.startTime = startTime;
     }
 
     public Task(Task task) {
@@ -21,6 +30,23 @@ public class Task {
         this.name = task.getName();
         this.description = task.getDescription();
         this.taskStatus = task.getTaskStatus();
+        this.duration = task.duration;
+        this.startTime = task.startTime;
+    }
+
+    public Optional<LocalDateTime> getEndTime() {
+        if (duration == null || startTime == null) {
+            return Optional.empty();
+        }
+        return Optional.of(startTime.plus(duration));
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
     }
 
     public TaskType getTaskType() {
@@ -72,5 +98,12 @@ public class Task {
         return id;
     }
 
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
 }
 

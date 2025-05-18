@@ -3,17 +3,20 @@ package main.model;
 
 import main.service.TaskType;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Subtask extends Task {
     private int epicId;
 
-    public Subtask(String name, String description) {
-        super(name, description);
+    public Subtask(String name, String description, Duration duration, LocalDateTime startTime) {
+        super(name, description, duration, startTime);
         this.epicId = 0;
 
     }
 
     public Subtask(Subtask subtask) {
-        super(subtask.getName(), subtask.getDescription());
+        super(subtask.getName(), subtask.getDescription(), subtask.getDuration(), subtask.getStartTime());
         setId(subtask.getId());
         setEpicId(subtask.getEpicId());
         setTaskStatus(subtask.getTaskStatus());
