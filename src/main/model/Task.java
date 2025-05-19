@@ -35,7 +35,7 @@ public class Task {
     }
 
     public Optional<LocalDateTime> getEndTime() {
-        if (duration == null || startTime == null) {
+        if (duration == Duration.ZERO || startTime == null) {
             return Optional.empty();
         }
         return Optional.of(startTime.plus(duration));

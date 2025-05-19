@@ -18,14 +18,35 @@ public class InMemoryTaskManager implements TaskManager {
     private int idCounter = 0;
     private final HistoryManager historyManager = Managers.getDefaultHistory();
 
-    private void prioritizedCheck(Task task) {
-        if (task.getStartTime() != null) {
-            prioritizedTasks.add(task);
+    private void timeCrossCheck(Task task) {
+        if (isTaskTimeCrossed(task)) {
+            throw new IllegalTaskTimeException("Время выполнения задачи " + task.getName() + " пересекается по времени с другой задачей в списке!");
         }
     }
 
-    private void deleteTaskFromPrioritized(Task task) {
-        prioritizedTasks.remove(task);
+    public TreeSet<Task> getPrioritizedTasks() {
+        return prioritizedTasks;
+    }
+
+
+    private boolean isTaskTimeCrossed(Task task1) {
+        return prioritizedTasks.stream().anyMatch(task2 -> isTaskTimeWithAnother(task1, task2));
+
+    }
+
+    private boolean isTaskTimeWithAnother(Task task1, Task task2) {
+        if (task1.getStartTime() == null || task2.getStartTime() == null) {
+            return false;
+        }
+        if (task1.getEndTime().isEmpty() || task2.getEndTime().isEmpty()) {
+            return false;
+        }
+        LocalDateTime start1 = task1.getStartTime();
+        LocalDateTime end1 = task1.getEndTime().get();
+        LocalDateTime start2 = task2.getStartTime();
+        LocalDateTime end2 = task2.getEndTime().get();
+        return !end1.isBefore(start2) && !end2.isBefore(start1);
+
     }
 
     @Override
@@ -60,6 +81,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (task == null) {
             return;
         }
+        timeCrossCheck(task);
         task.setId(++idCounter);
         regularTasksList.put(task.getId(), new Task(task));
         prioritizedCheck(task);
@@ -70,6 +92,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (!epicTasksList.containsKey(epicId) || subtask == null) {
             return;
         }
+        timeCrossCheck(subtask);
         subtask.setId(++idCounter);
         subtask.setEpicId(epicId);
         subTasksList.put(subtask.getId(), new Subtask(subtask));
@@ -84,6 +107,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (epic == null) {
             return;
         }
+        timeCrossCheck(epic);
         epic.setId(++idCounter);
         epicTasksList.put(epic.getId(), new Epic(epic));
         prioritizedCheck(epic);
@@ -94,6 +118,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (task.getId() == 0) {
             return;
         }
+        timeCrossCheck(task);
         regularTasksList.put(task.getId(), task);
         prioritizedCheck(task);
     }
@@ -103,6 +128,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (subtask.getId() == 0) {
             return;
         }
+        timeCrossCheck(subtask);
         subTasksList.put(subtask.getId(), subtask);
         Epic currentEpic = epicTasksList.get(subtask.getEpicId());
         currentEpic.getEpicSubtasks().add(subtask.getId());
@@ -116,6 +142,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (epic.getId() == 0) {
             return;
         }
+        timeCrossCheck(epic);
         epicTasksList.put(epic.getId(), epic);
         prioritizedCheck(epic);
     }
@@ -274,6 +301,16 @@ public class InMemoryTaskManager implements TaskManager {
         epic.setStartTime(epic.getEpicSubtasks().stream().map(subTasksList::get).map(Task::getStartTime).min(LocalDateTime::compareTo).orElse(null));
         epic.setDuration(epic.getEpicSubtasks().stream().map(subTasksList::get).map(Task::getDuration).filter(Objects::nonNull).reduce(Duration.ZERO, Duration::plus));
 
+    }
+
+    private void prioritizedCheck(Task task) {
+        if (task.getStartTime() != null) {
+            prioritizedTasks.add(task);
+        }
+    }
+
+    private void deleteTaskFromPrioritized(Task task) {
+        prioritizedTasks.remove(task);
     }
 
     @Override
