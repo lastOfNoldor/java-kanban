@@ -109,9 +109,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public static void loadEpicsData(FileBackedTaskManager manager, List<Integer> subtasksIds) {
         for (Integer id : subtasksIds) {
-            manager.epicTasksList.get(id).getEpicSubtasks().add(id);
-            manager.updateEpicStatus(id);
-            manager.updateEpicTime(id);
+            Epic epic = manager.epicTasksList.get(manager.subTasksList.get(id).getEpicId());
+            epic.getEpicSubtasks().add(id);
+            manager.updateEpicStatus(epic.getId());
+            manager.updateEpicTime(epic.getId());
         }
     }
 
@@ -129,7 +130,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     private static List<Integer> getSubtasksEpicIds(FileBackedTaskManager manager, List<String> data) {
-        return data.stream().map(manager::fromString).filter(task -> task.getTaskType() == TaskType.SUBTASK).map(task -> (Subtask) task).map(Subtask::getEpicId).toList();
+        return data.stream().map(manager::fromString).filter(task -> task.getTaskType() == TaskType.SUBTASK).map(task -> (Subtask) task).map(Subtask::getId).toList();
     }
 
     private static void fillManagerLists(FileBackedTaskManager manager, List<String> data) {

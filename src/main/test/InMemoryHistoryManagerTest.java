@@ -8,6 +8,10 @@ import main.service.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.Month;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class InMemoryHistoryManagerTest {
@@ -21,13 +25,13 @@ public class InMemoryHistoryManagerTest {
     @BeforeEach
     void init() {
         taskManager = Managers.getDefault();
-        task = new Task("Test1", "Test addNewTask description");
+        task = new Task("Test1", "Test addNewTask description", LocalDateTime.of(2025, Month.DECEMBER, 9, 12, 12), Duration.ofHours(1));
         taskManager.createTask(task);
-        task2 = new Task("Test2", "Test addNewTask description");
+        task2 = new Task("Test2", "Test addNewTask description", LocalDateTime.of(2025, Month.DECEMBER, 12, 12, 12), Duration.ofHours(1));
         taskManager.createTask(task2);
-        task3 = new Task("Test3", "Test addNewTask description");
+        task3 = new Task("Test3", "Test addNewTask description", LocalDateTime.of(2025, Month.DECEMBER, 13, 14, 12), Duration.ofHours(1));
         taskManager.createTask(task3);
-        task4 = new Task("Test4", "Test addNewTask description");
+        task4 = new Task("Test4", "Test addNewTask description", LocalDateTime.of(2025, Month.DECEMBER, 14, 12, 12), Duration.ofHours(1));
         taskManager.createTask(task4);
         taskManager.getTaskById(task.getId());
         taskManager.getTaskById(task2.getId());
@@ -71,7 +75,7 @@ public class InMemoryHistoryManagerTest {
     void subtasksAndEpicWorksFineInHistory() {
         Epic epic = new Epic("Epic1", "Ep Description");
         taskManager.createEpic(epic);
-        Subtask subtask = new Subtask("Subtask1", "Sub Description");
+        Subtask subtask = new Subtask("Subtask1", "Sub Description", LocalDateTime.of(2025, Month.DECEMBER, 15, 12, 12), Duration.ofHours(1));
         taskManager.createSubTask(subtask, epic.getId());
         taskManager.getSubTaskById(subtask.getId());
         assertEquals(task4.getId(), taskManager.getHistoryManager().getHistory().get(3).getId());
@@ -96,14 +100,14 @@ public class InMemoryHistoryManagerTest {
     void deletedEpicTaskAlsoDeletedInHistoryWithItsSubtasks() {
         Epic epic = new Epic("Epic1", "Ep Description");
         taskManager.createEpic(epic);
-        Subtask subtask = new Subtask("Subtask1", "Sub Description");
+        Subtask subtask = new Subtask("Subtask1", "Sub Description", LocalDateTime.of(2021, Month.DECEMBER, 14, 12, 12), Duration.ofHours(1));
         taskManager.createSubTask(subtask, epic.getId());
         taskManager.getEpicById(epic.getId());
         taskManager.getSubTaskById(subtask.getId());
 
         Epic epic2 = new Epic("Epic2", "Ep Description");
         taskManager.createEpic(epic2);
-        Subtask subtask2 = new Subtask("Subtask2", "Sub Description");
+        Subtask subtask2 = new Subtask("Subtask2", "Sub Description", LocalDateTime.of(2025, Month.DECEMBER, 11, 12, 12), Duration.ofHours(1));
         taskManager.createSubTask(subtask2, epic2.getId());
         taskManager.getEpicById(epic2.getId());
         taskManager.getSubTaskById(subtask2.getId());
@@ -129,14 +133,14 @@ public class InMemoryHistoryManagerTest {
     void clearAllSubtasksWorksCorrectInHistory() {
         Epic epic = new Epic("Epic1", "Ep Description");
         taskManager.createEpic(epic);
-        Subtask subtask = new Subtask("Subtask1", "Sub Description");
+        Subtask subtask = new Subtask("Subtask1", "Sub Description", LocalDateTime.of(2025, Month.DECEMBER, 11, 12, 12), Duration.ofHours(1));
         taskManager.createSubTask(subtask, epic.getId());
         taskManager.getEpicById(epic.getId());
         taskManager.getSubTaskById(subtask.getId());
 
         Epic epic2 = new Epic("Epic2", "Ep Description");
         taskManager.createEpic(epic2);
-        Subtask subtask2 = new Subtask("Subtask2", "Sub Description");
+        Subtask subtask2 = new Subtask("Subtask2", "Sub Description", LocalDateTime.of(2024, Month.DECEMBER, 12, 12, 12), Duration.ofHours(1));
         taskManager.createSubTask(subtask2, epic2.getId());
         taskManager.getEpicById(epic2.getId());
         taskManager.getSubTaskById(subtask2.getId());
@@ -152,14 +156,14 @@ public class InMemoryHistoryManagerTest {
     void clearAllEpicWorksCorrectInHistory() {
         Epic epic = new Epic("Epic1", "Ep Description");
         taskManager.createEpic(epic);
-        Subtask subtask = new Subtask("Subtask1", "Sub Description");
+        Subtask subtask = new Subtask("Subtask1", "Sub Description", LocalDateTime.of(2025, Month.DECEMBER, 21, 12, 12), Duration.ofHours(1));
         taskManager.createSubTask(subtask, epic.getId());
         taskManager.getEpicById(epic.getId());
         taskManager.getSubTaskById(subtask.getId());
 
         Epic epic2 = new Epic("Epic2", "Ep Description");
         taskManager.createEpic(epic2);
-        Subtask subtask2 = new Subtask("Subtask2", "Sub Description");
+        Subtask subtask2 = new Subtask("Subtask2", "Sub Description", LocalDateTime.of(2025, Month.DECEMBER, 1, 12, 12), Duration.ofHours(1));
         taskManager.createSubTask(subtask2, epic2.getId());
         taskManager.getEpicById(epic2.getId());
         taskManager.getSubTaskById(subtask2.getId());

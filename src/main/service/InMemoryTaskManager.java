@@ -35,11 +35,24 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private boolean isTaskTimeWithAnother(Task task1, Task task2) {
+        if (task1.getId() == task2.getId()) {
+            return false;
+        }
         if (task1.getStartTime() == null || task2.getStartTime() == null) {
             return false;
         }
         if (task1.getEndTime().isEmpty() || task2.getEndTime().isEmpty()) {
             return false;
+        }
+        if (task1.getTaskType() == TaskType.SUBTASK) {
+            if (task2.getId() == ((Subtask) task1).getEpicId()) {
+                return false;
+            }
+            if (task1.getTaskType() == TaskType.EPIC) {
+                if (task1.getId() == ((Subtask) task2).getEpicId()) {
+                    return false;
+                }
+            }
         }
         LocalDateTime start1 = task1.getStartTime();
         LocalDateTime end1 = task1.getEndTime().get();
@@ -92,9 +105,9 @@ public class InMemoryTaskManager implements TaskManager {
         if (!epicTasksList.containsKey(epicId) || subtask == null) {
             return;
         }
+        subtask.setEpicId(epicId);
         timeCrossCheck(subtask);
         subtask.setId(++idCounter);
-        subtask.setEpicId(epicId);
         subTasksList.put(subtask.getId(), new Subtask(subtask));
         epicTasksList.get(epicId).getEpicSubtasks().add(subtask.getId());
         updateEpicStatus(subtask.getEpicId());
@@ -207,8 +220,8 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteTask(int id) {
         if (regularTasksList.containsKey(id)) {
             historyManager.remove(id);
-            regularTasksList.remove(id);
             deleteTaskFromPrioritized(regularTasksList.get(id));
+            regularTasksList.remove(id);
         } else {
             System.out.println("Неверно указан id обычной задачи");
         }
@@ -293,13 +306,13 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private List<TaskStatus> getEpicSubtaskStatuses(Epic epic) {
-        return epic.getEpicSubtasks().stream().map(subTasksList::get).map(Task::getTaskStatus).toList();
+        return epic.getEpicSubtasks().stream().map(subTasksList::get).filter(Objects::nonNull).map(Task::getTaskStatus).toList();
     }
 
     protected void updateEpicTime(int epicId) {
         Epic epic = epicTasksList.get(epicId);
-        epic.setStartTime(epic.getEpicSubtasks().stream().map(subTasksList::get).map(Task::getStartTime).min(LocalDateTime::compareTo).orElse(null));
-        epic.setDuration(epic.getEpicSubtasks().stream().map(subTasksList::get).map(Task::getDuration).filter(Objects::nonNull).reduce(Duration.ZERO, Duration::plus));
+        epic.setStartTime(epic.getEpicSubtasks().stream().map(subTasksList::get).filter(Objects::nonNull).map(Task::getStartTime).filter(Objects::nonNull).min(LocalDateTime::compareTo).orElse(null));
+        epic.setDuration(epic.getEpicSubtasks().stream().map(subTasksList::get).filter(Objects::nonNull).map(Task::getDuration).filter(Objects::nonNull).reduce(Duration.ZERO, Duration::plus));
 
     }
 

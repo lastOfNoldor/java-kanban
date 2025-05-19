@@ -9,6 +9,10 @@ import main.service.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.Month;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -22,7 +26,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void tasksEqualsEachOther() {
-        Task task = new Task("Test addNewTask", "Test addNewTask description");
+        Task task = new Task("Test addNewTask", "Test addNewTask description", LocalDateTime.of(2025, Month.DECEMBER, 9, 12, 12), Duration.ofHours(1));
         taskManager.createTask(task);
         int id = task.getId();
         Task task2 = taskManager.getTaskById(id);
@@ -44,7 +48,7 @@ class InMemoryTaskManagerTest {
     @Test
     void updateSubTaskStatusUpdatesEpicStatus() {
         Epic et1 = new Epic("Эпик#1", "description");
-        Subtask subtask1 = new Subtask("Подзадача первого Эпика", "description");
+        Subtask subtask1 = new Subtask("Подзадача первого Эпика", "description", LocalDateTime.of(2026, Month.DECEMBER, 9, 12, 12), Duration.ofHours(1));
         taskManager.createEpic(et1);
         taskManager.createSubTask(subtask1, et1.getId());
         assertEquals(TaskStatus.NEW, et1.getTaskStatus());
@@ -62,8 +66,8 @@ class InMemoryTaskManagerTest {
     @Test
     void done1SubTaskDoesntMakesEpicStatusDoneIfGotMoreSubtasks() {
         Epic et2 = new Epic("Эпик#2", "description");
-        Subtask subtask2 = new Subtask("Первая Подзадача второго Эпика", "description");
-        Subtask subtask3 = new Subtask("Вторая Подзадача второго Эпика", "description");
+        Subtask subtask2 = new Subtask("Первая Подзадача второго Эпика", "description", LocalDateTime.of(2025, Month.DECEMBER, 9, 12, 12), Duration.ofHours(1));
+        Subtask subtask3 = new Subtask("Вторая Подзадача второго Эпика", "description", LocalDateTime.of(2025, Month.DECEMBER, 12, 12, 12), Duration.ofHours(1));
         taskManager.createEpic(et2);
         taskManager.createSubTask(subtask2, et2.getId());
         taskManager.createSubTask(subtask3, et2.getId());
@@ -76,7 +80,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void historyWorks() {
-        Task task1 = new Task("Обычное задание#1", "description");
+        Task task1 = new Task("Обычное задание#1", "description", LocalDateTime.of(2025, Month.DECEMBER, 9, 12, 12), Duration.ofHours(1));
         taskManager.createTask(task1);
         taskManager.getTaskById(1);
         assertEquals(1, taskManager.getHistoryManager().getHistory().size());
@@ -85,7 +89,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void wrapProtectsFromSetIdAndTaskStatus() {
-        Task task = new Task("Test addNewTask", "old");
+        Task task = new Task("Test addNewTask", "old", LocalDateTime.of(2025, Month.DECEMBER, 9, 12, 12), Duration.ofHours(1));
         taskManager.createTask(task);
         taskManager.getTaskById(task.getId()).setId(1111);
         taskManager.updateTask(task);
