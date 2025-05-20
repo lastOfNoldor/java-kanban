@@ -4,7 +4,6 @@ import main.service.TaskType;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 public class Task {
 
@@ -34,11 +33,11 @@ public class Task {
         this.duration = task.duration;
     }
 
-    public Optional<LocalDateTime> getEndTime() {
+    public LocalDateTime getEndTime() {
         if (duration == Duration.ZERO || startTime == null) {
-            return Optional.empty();
+            return null;
         }
-        return Optional.of(startTime.plus(duration));
+        return startTime.plus(duration);
     }
 
     public Duration getDuration() {
@@ -82,7 +81,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return "ID: " + getId() + ". Название: " + getName() + " Описание: " + getDescription() + " Время старта: " + getStartTime() + " Продолжительность: " + getDuration() + " Время завершения: " + getEndTime().orElse(null) + " Статус: " + getTaskStatus().toString().charAt(0) + getTaskStatus().toString().substring(1).toLowerCase();
+        return "ID: " + getId() + ". Название: " + getName() + " Описание: " + getDescription() + " Время старта: " + getStartTime() + " Продолжительность: " + getDuration() + " Время завершения: " + getEndTime() + " Статус: " + getTaskStatus().toString().charAt(0) + getTaskStatus().toString().substring(1).toLowerCase();
     }
 
     @Override

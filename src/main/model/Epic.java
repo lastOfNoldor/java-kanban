@@ -9,6 +9,7 @@ import java.util.HashSet;
 
 public class Epic extends Task {
     private final HashSet<Integer> epicSubtasks;
+    private LocalDateTime endTime;
 
     public Epic(String name, String description) {
         super(name, description, null, Duration.ZERO);
@@ -20,6 +21,7 @@ public class Epic extends Task {
         super(epic.getName(), epic.getDescription(), epic.getStartTime(), epic.getDuration());
         setId(epic.getId());
         setTaskStatus(epic.getTaskStatus());
+        this.endTime = epic.getEndTime();
         this.epicSubtasks = epic.getEpicSubtasks();
     }
 
@@ -37,10 +39,18 @@ public class Epic extends Task {
         return epicSubtasks;
     }
 
+    @Override
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
 
     @Override
     public String toString() {
-        return "ID: " + getId() + ". Название: " + getName() + " Описание: " + getDescription() + " Кол-во подзадач: " + epicSubtasks.size() + ". Время старта: " + getStartTime() + " Продолжительность: " + getDuration() + " Время завершения: " + getEndTime().orElse(null) + " Статус: " + getTaskStatus().toString().charAt(0) + getTaskStatus().toString().substring(1).toLowerCase();
+        return "ID: " + getId() + ". Название: " + getName() + " Описание: " + getDescription() + " Кол-во подзадач: " + epicSubtasks.size() + ". Время старта: " + getStartTime() + " Продолжительность: " + getDuration() + " Время завершения: " + getEndTime() + " Статус: " + getTaskStatus().toString().charAt(0) + getTaskStatus().toString().substring(1).toLowerCase();
     }
 
 

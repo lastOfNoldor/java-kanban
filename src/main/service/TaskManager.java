@@ -4,6 +4,8 @@ import main.model.Epic;
 import main.model.Subtask;
 import main.model.Task;
 
+import java.util.TreeSet;
+
 public interface TaskManager {
     Task getTaskById(int id);
 
@@ -40,4 +42,5 @@ public interface TaskManager {
     HistoryManager getHistoryManager();
 
 
+    TreeSet<Task> getPrioritizedTasks();
 }
