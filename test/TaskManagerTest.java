@@ -1,4 +1,4 @@
-package main.test;
+package test;
 
 import main.model.Epic;
 import main.model.Subtask;

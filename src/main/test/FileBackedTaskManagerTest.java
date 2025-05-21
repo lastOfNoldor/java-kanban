@@ -19,25 +19,35 @@ import java.time.Month;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class FileBackedTaskManagerTest {
+public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
     private File tempFile;
-    private Task task;
-    private Epic epic1;
-    private Subtask subtask1;
-    private Subtask subtask2;
-    private Epic epic2;
 
     @BeforeEach
     void init() throws IOException {
         tempFile = File.createTempFile("tasks", ".csv");
         tempFile.deleteOnExit();
+        taskManager = FileBackedTaskManager.loadFromFile(tempFile);
+        task = new Task("Task1", "Test addNewTask description", LocalDateTime.of(2025, Month.DECEMBER, 9, 12, 12), Duration.ofHours(1));
+        epic1 = new Epic("Эпик#1", "description");
+        subtask1 = new Subtask("Подзадача первого Эпика", "description", LocalDateTime.of(2026, Month.DECEMBER, 9, 12, 12), Duration.ofHours(1));
+        epic2 = new Epic("Эпик#2", "description");
+        subtask2 = new Subtask("Первая Подзадача второго Эпика", "description", LocalDateTime.of(2025, Month.DECEMBER, 13, 12, 12), Duration.ofHours(1));
+        subtask3 = new Subtask("Вторая Подзадача второго Эпика", "description", LocalDateTime.of(2025, Month.DECEMBER, 12, 12, 12), Duration.ofHours(1));
+        taskManager.createTask(task);
+        taskManager.createEpic(epic1);
+        taskManager.createSubTask(subtask1, epic1.getId());
+        taskManager.createEpic(epic2);
+        taskManager.createSubTask(subtask2, epic2.getId());
+        taskManager.createSubTask(subtask3, epic2.getId());
 
     }
 
     @Test
-    void workWithEmptyListAtFirstStart() {
-        FileBackedTaskManager testManager = FileBackedTaskManager.loadFromFile(tempFile);
+    void workWithEmptyListAtFirstStart() throws IOException {
+        File tempFile2 = File.createTempFile("tasks", ".csv");
+        tempFile2.deleteOnExit();
+        FileBackedTaskManager testManager = FileBackedTaskManager.loadFromFile(tempFile2);
         assertEquals(0, testManager.getRegularTasksList().size());
         task = new Task("Task1", "Test description", LocalDateTime.of(2025, Month.DECEMBER, 9, 12, 12), Duration.ofHours(1));
         testManager.createTask(task);
@@ -59,30 +69,33 @@ public class FileBackedTaskManagerTest {
 
     @Test
     void dataWritesInFileAndLoadsFromItSuccessfullyAndNextTaskIdWritesProperly() {
-        FileBackedTaskManager taskManager = new FileBackedTaskManager(tempFile);
+        FileBackedTaskManager testManager = new FileBackedTaskManager(tempFile);
         task = new Task("Task1", "Test description", LocalDateTime.of(2025, Month.DECEMBER, 13, 12, 12), Duration.ofHours(1));
-        taskManager.createTask(task);
+        testManager.createTask(task);
         epic1 = new Epic("Epic1", "Test Epic description");
-        taskManager.createEpic(epic1);
+        testManager.createEpic(epic1);
         subtask1 = new Subtask("Subtask1", "Test Subtask description", LocalDateTime.of(2025, Month.DECEMBER, 14, 12, 12), Duration.ofHours(1));
-        taskManager.createSubTask(subtask1, epic1.getId());
+        testManager.createSubTask(subtask1, epic1.getId());
         subtask2 = new Subtask("Subtask2", "Test Subtask description", LocalDateTime.of(2025, Month.DECEMBER, 15, 12, 12), Duration.ofHours(1));
-        taskManager.createSubTask(subtask2, epic1.getId());
+        testManager.createSubTask(subtask2, epic1.getId());
         epic2 = new Epic("Epic2", "Test Epic description");
-        taskManager.createEpic(epic2);
-        taskManager.printAllTasks();
+        testManager.createEpic(epic2);
+        subtask1.setTaskStatus(TaskStatus.DONE);
+        testManager.updateSubTask(subtask1);
+        testManager.printAllTasks();
 
-        FileBackedTaskManager testManager = FileBackedTaskManager.loadFromFile(tempFile);
-        assertEquals(1, testManager.getRegularTasksList().size());
-        assertEquals(5, testManager.getRegularTasksList().size() + testManager.getSubTasksTasksList().size() + testManager.getEpicTasksList().size());
-        testManager.printAllTasks();
-        assertEquals(2, testManager.getEpicById(epic1.getId()).getEpicSubtasks().size());
-        System.out.println(testManager.getEpicById(epic1.getId()).getEpicSubtasks().size());
+        FileBackedTaskManager newTestManager = FileBackedTaskManager.loadFromFile(tempFile);
+        assertEquals(1, newTestManager.getRegularTasksList().size());
+        assertEquals(5, newTestManager.getRegularTasksList().size() + newTestManager.getSubTasksTasksList().size() + newTestManager.getEpicTasksList().size());
+        newTestManager.printAllTasks();
+        assertEquals(2, newTestManager.getEpicById(epic1.getId()).get().getEpicSubtasks().size());
+        System.out.println(newTestManager.getEpicById(epic1.getId()).get().getEpicSubtasks().size());
         Subtask subtaskAfterLoad = new Subtask("Subtask after load", "Test Subtask description", LocalDateTime.of(2025, Month.DECEMBER, 16, 12, 12), Duration.ofHours(1));
-        testManager.createSubTask(subtaskAfterLoad, epic1.getId());
+        newTestManager.createSubTask(subtaskAfterLoad, epic2.getId());
         assertEquals(6, subtaskAfterLoad.getId());
-        assertEquals(3, testManager.getEpicById(epic1.getId()).getEpicSubtasks().size());
-        testManager.printAllTasks();
+        assertEquals(1, newTestManager.getEpicById(epic2.getId()).get().getEpicSubtasks().size());
+        newTestManager.printAllTasks();
     }
+
 
 }
