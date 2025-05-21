@@ -2,18 +2,26 @@ package main.model;
 
 import main.service.TaskType;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Task {
 
     private final String name;
     private final String description;
     private int id;
     private TaskStatus taskStatus;
+    private Duration duration;
+    private LocalDateTime startTime;
 
-    public Task(String name, String description) {
+
+    public Task(String name, String description, LocalDateTime startTime, Duration duration) {
         this.id = 0;
         this.name = name;
         this.description = description;
         taskStatus = TaskStatus.NEW;
+        this.startTime = startTime;
+        this.duration = duration;
     }
 
     public Task(Task task) {
@@ -21,6 +29,23 @@ public class Task {
         this.name = task.getName();
         this.description = task.getDescription();
         this.taskStatus = task.getTaskStatus();
+        this.startTime = task.startTime;
+        this.duration = task.duration;
+    }
+
+    public LocalDateTime getEndTime() {
+        if (duration == Duration.ZERO || startTime == null) {
+            return null;
+        }
+        return startTime.plus(duration);
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
     }
 
     public TaskType getTaskType() {
@@ -56,7 +81,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return "ID: " + getId() + ". Название: " + getName() + " Описание: " + getDescription() + " Status: " + getTaskStatus().toString().charAt(0) + getTaskStatus().toString().substring(1).toLowerCase();
+        return "ID: " + getId() + ". Название: " + getName() + " Описание: " + getDescription() + " Время старта: " + getStartTime() + " Продолжительность: " + getDuration() + " Время завершения: " + getEndTime() + " Статус: " + getTaskStatus().toString().charAt(0) + getTaskStatus().toString().substring(1).toLowerCase();
     }
 
     @Override
@@ -72,5 +97,12 @@ public class Task {
         return id;
     }
 
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
 }
 

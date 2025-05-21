@@ -4,12 +4,15 @@ import main.model.Epic;
 import main.model.Subtask;
 import main.model.Task;
 
+import java.util.Optional;
+import java.util.TreeSet;
+
 public interface TaskManager {
-    Task getTaskById(int id);
+    Optional<Task> getTaskById(int id);
 
-    Subtask getSubTaskById(int id);
+    Optional<Subtask> getSubTaskById(int id);
 
-    Epic getEpicById(int id);
+    Optional<Epic> getEpicById(int id);
 
     void createTask(Task task);
 
@@ -40,4 +43,5 @@ public interface TaskManager {
     HistoryManager getHistoryManager();
 
 
+    TreeSet<Task> getPrioritizedTasks();
 }
