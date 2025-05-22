@@ -19,7 +19,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             if (historyMap.containsKey(task.getId())) {
                 remove(task.getId());
             }
-            linkLast(task);
+            linkLast(new Task(task));
         }
     }
 
@@ -35,7 +35,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             head = newNode;
         } else {
             tail.next = newNode;
-
+            newNode.prev = tail;
         }
         tail = newNode;
         historyMap.put(task.getId(), newNode);
