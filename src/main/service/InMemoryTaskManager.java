@@ -136,8 +136,8 @@ public class InMemoryTaskManager implements TaskManager {
         updateEpic(currentEpic);
     }
 
-    @Override
-    public void updateEpic(Epic epic) {
+
+    protected void updateEpic(Epic epic) {
         if (epic.getId() == 0) {
             return;
         }
