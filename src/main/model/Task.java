@@ -47,6 +47,9 @@ public class Task {
         if (description == null || description.isBlank()) {
             throw new IllegalArgumentException("Описание не указано!");
         }
+        if (taskStatus == null) {
+            throw new IllegalArgumentException("Статус задачи не указан или указан не верно!");
+        }
         if (startTime == null) {
             throw new IllegalArgumentException("Время начала не указано!");
         }
@@ -92,6 +95,14 @@ public class Task {
 
     public void setTaskStatus(TaskStatus taskStatus) {
         this.taskStatus = taskStatus;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override

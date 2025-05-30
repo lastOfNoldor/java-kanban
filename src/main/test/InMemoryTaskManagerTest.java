@@ -25,10 +25,10 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
         subtask3 = new Subtask("Вторая Подзадача второго Эпика", "description", LocalDateTime.of(2025, Month.DECEMBER, 12, 12, 12), Duration.ofHours(1));
         taskManager.createTask(task);
         taskManager.createEpic(epic1);
-        taskManager.createSubTask(subtask1, epic1.getId());
+        taskManager.createSubtask(subtask1, epic1.getId());
         taskManager.createEpic(epic2);
-        taskManager.createSubTask(subtask2, epic2.getId());
-        taskManager.createSubTask(subtask3, epic2.getId());
+        taskManager.createSubtask(subtask2, epic2.getId());
+        taskManager.createSubtask(subtask3, epic2.getId());
     }
 
 }

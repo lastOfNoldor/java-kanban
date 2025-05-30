@@ -11,29 +11,29 @@ import java.util.TreeSet;
 public interface TaskManager {
     Optional<Task> getTaskById(int id);
 
-    Optional<Subtask> getSubTaskById(int id);
+    Optional<Subtask> getSubtaskById(int id);
 
     Optional<Epic> getEpicById(int id);
 
     void createTask(Task task);
 
-    void createSubTask(Subtask subtask, int epicId);
+    void createSubtask(Subtask subtask, int epicId);
 
     void createEpic(Epic epic);
 
     void updateTask(Task task);
 
-    void updateSubTask(Subtask subtask);
+    void updateSubtask(Subtask subtask);
 
     void clearTasks();
 
-    void clearSubTasks();
+    void clearSubtasks();
 
-    void clearEpicTasks();
+    void clearEpics();
 
     void deleteTask(int id);
 
-    void deleteSubTask(int id);
+    void deleteSubtask(int id);
 
     void deleteEpic(int id);
 
@@ -46,7 +46,7 @@ public interface TaskManager {
 
     List<Task> getRegularTasksList();
 
-    List<Subtask> getSubTasksTasksList();
+    List<Subtask> getSubtasksList();
 
-    List<Epic> getEpicTasksList();
+    List<Epic> getEpicsList();
 }
