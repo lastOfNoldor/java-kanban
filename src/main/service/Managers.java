@@ -38,9 +38,9 @@ public class Managers {
         public void write(JsonWriter writer, Duration duration) throws IOException {
             if (duration == null) {
                 duration = Duration.ZERO;
-            } else {
-                writer.value(duration.toString());
             }
+            writer.value(duration.toString());
+
         }
 
         @Override

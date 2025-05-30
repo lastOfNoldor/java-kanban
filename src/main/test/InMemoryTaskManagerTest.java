@@ -16,7 +16,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
 
     @BeforeEach
     void init() {
-        taskManager = Managers.getDefault();
+        taskManager = (InMemoryTaskManager) Managers.getDefault();
         task = new Task("Task1", "Test addNewTask description", LocalDateTime.of(2025, Month.DECEMBER, 9, 12, 12), Duration.ofHours(1));
         epic1 = new Epic("Эпик#1", "description");
         subtask1 = new Subtask("Подзадача первого Эпика", "description", LocalDateTime.of(2026, Month.DECEMBER, 9, 12, 12), Duration.ofHours(1));

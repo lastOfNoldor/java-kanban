@@ -88,12 +88,12 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         assertEquals(1, newTestManager.getRegularTasksList().size());
         assertEquals(5, newTestManager.getRegularTasksList().size() + newTestManager.getSubtasksList().size() + newTestManager.getEpicsList().size());
         newTestManager.printAllTasks();
-        assertEquals(2, newTestManager.getEpicById(epic1.getId()).get().getEpicSubtasks().size());
-        System.out.println(newTestManager.getEpicById(epic1.getId()).get().getEpicSubtasks().size());
+        assertEquals(2, newTestManager.getEpicById(epic1.getId()).orElseThrow().getEpicSubtasks().size());
+        System.out.println(newTestManager.getEpicById(epic1.getId()).orElseThrow().getEpicSubtasks().size());
         Subtask subtaskAfterLoad = new Subtask("Subtask after load", "Test Subtask description", LocalDateTime.of(2025, Month.DECEMBER, 16, 12, 12), Duration.ofHours(1));
         newTestManager.createSubtask(subtaskAfterLoad, epic2.getId());
         assertEquals(6, subtaskAfterLoad.getId());
-        assertEquals(1, newTestManager.getEpicById(epic2.getId()).get().getEpicSubtasks().size());
+        assertEquals(1, newTestManager.getEpicById(epic2.getId()).orElseThrow().getEpicSubtasks().size());
         newTestManager.printAllTasks();
     }
 
