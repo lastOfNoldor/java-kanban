@@ -13,21 +13,21 @@ import main.service.TaskManager;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeSet;
+import java.util.*;
+
+import static java.net.HttpURLConnection.*;
 
 public class TaskHandler implements HttpHandler {
     private static final String KEY_MESSAGE = "message";
     private static final String KEY_ERROR = "error";
     private static final int ONLY_TASK_TYPE = 2;
     private static final int TASK_TYPE_WITH_ID = 3;
-    TaskManager taskManager;
-    Gson gson;
-    int code;
-    String[] pathParts;
-    String method;
+    private final TaskManager taskManager;
+    private final Gson gson;
+    private int code;
+    private String[] pathParts;
+    private HttpMethod method;
+
 
     public TaskHandler(TaskManager taskManager, Gson gson) {
         this.taskManager = taskManager;
@@ -38,7 +38,7 @@ public class TaskHandler implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
         pathParts = exchange.getRequestURI().getPath().split("/");
         Endpoint endpoint = getEndpoint();
-        method = exchange.getRequestMethod();
+        method = HttpMethod.valueOf(exchange.getRequestMethod());
         String response;
 
         switch (endpoint) {
@@ -68,84 +68,86 @@ public class TaskHandler implements HttpHandler {
 
     private String parseTasksRequest(HttpExchange exchange) throws IOException {
         return switch (method) {
-            case "GET" -> tasksRequestGet();
-            case "POST" -> tasksRequestPost(exchange);
-            case "DELETE" -> tasksRequestDelete();
-            default -> badRequest();
+            case GET -> getRequestTasks();
+            case POST -> postRequestTask(exchange);
+            case DELETE -> deleteRequestTask();
         };
     }
 
     private String parseSubtasksRequest(HttpExchange exchange) throws IOException {
         return switch (method) {
-            case "GET" -> subtasksRequestGet();
-            case "POST" -> subtasksRequestPost(exchange);
-            case "DELETE" -> subtasksRequestDelete();
-            default -> badRequest();
+            case GET -> getRequestSubtask();
+            case POST -> postRequestSubtask(exchange);
+            case DELETE -> deleteRequestSubtask();
+
         };
 
     }
 
     private String parseEpicsRequest(HttpExchange exchange) throws IOException {
         return switch (method) {
-            case "GET" -> epicsRequestGet();
-            case "POST" -> epicsRequestPost(exchange);
-            case "DELETE" -> epicsRequestDelete();
-            default -> badRequest();
+            case GET -> getRequestEpic();
+            case POST -> postRequestEpic(exchange);
+            case DELETE -> deleteRequestEpic();
         };
     }
 
     private String parseHistoryRequest() {
-        if (pathParts.length == 2 && method.equals("GET")) {
+        if (pathParts.length == 2 && method == HttpMethod.GET) {
             List<Task> historyList = taskManager.getHistoryManager().getHistory();
             if (historyList.isEmpty()) {
                 return emptyList();
             } else {
-                code = 200;
-                return gson.toJson(historyList);
+                return getSuccess(historyList);
             }
         }
         return badRequest();
     }
 
     private String parsePrioritizedRequest() {
-        if (pathParts.length == 2 && method.equals("GET")) {
+        if (pathParts.length == 2 && method == HttpMethod.GET) {
             TreeSet<Task> prioritizedList = taskManager.getPrioritizedTasks();
             if (prioritizedList.isEmpty()) {
                 return emptyList();
             } else {
-                code = 200;
-                return gson.toJson(prioritizedList);
+                return getSuccess(prioritizedList);
             }
         }
         return badRequest();
     }
 
-    private String tasksRequestGet() {
+    private String getRequestTasks() {
         if (pathParts.length == ONLY_TASK_TYPE) {
-            List<Task> taskList = taskManager.getRegularTasksList();
-            if (taskList.isEmpty()) {
-                return emptyList();
-            } else {
-                code = 200;
-                return gson.toJson(taskList);
-            }
+            return tasksListRequest();
         } else if (pathParts.length == TASK_TYPE_WITH_ID) {
-            try {
-                int id = Integer.parseInt(pathParts[2]);
-                Optional<Task> task = taskManager.getTaskById(id);
-                if (task.isPresent()) {
-                    code = 200;
-                    return gson.toJson(task.get());
-                }
-                return notFound();
-            } catch (NumberFormatException e) {
-                return badRequest();
-            }
+            return taskSingleRequest();
         }
         return badRequest();
     }
 
-    private String tasksRequestPost(HttpExchange exchange) throws IOException {
+    private String tasksListRequest() {
+        List<Task> taskList = taskManager.getRegularTasksList();
+        if (taskList.isEmpty()) {
+            return emptyList();
+        } else {
+            return getSuccess(taskList);
+        }
+    }
+
+    private String taskSingleRequest() {
+        try {
+            int id = Integer.parseInt(pathParts[2]);
+            Optional<Task> task = taskManager.getTaskById(id);
+            if (task.isPresent()) {
+                return getSuccess(task.get());
+            }
+            return notFound();
+        } catch (NumberFormatException e) {
+            return badRequest();
+        }
+    }
+
+    private String postRequestTask(HttpExchange exchange) throws IOException {
         if (pathParts.length != ONLY_TASK_TYPE) {
             return badRequest();
         }
@@ -165,16 +167,14 @@ public class TaskHandler implements HttpHandler {
                     return updateSuccess();
                 }
             } catch (IllegalTaskTimeException e) {
-                code = 406;
-                return createJsonResponse(KEY_ERROR, e.getMessage());
+                return notAcceptable(e.getMessage());
             }
         } catch (JsonParseException | IllegalArgumentException e) {
-            code = 400;
-            return createJsonResponse(KEY_ERROR, "Ошибка в данных: " + e.getMessage());
+            return badRequestCustomMessage(e.getMessage());
         }
     }
 
-    private String tasksRequestDelete() {
+    private String deleteRequestTask() {
         if (pathParts.length != TASK_TYPE_WITH_ID) {
             return badRequest();
         }
@@ -190,33 +190,39 @@ public class TaskHandler implements HttpHandler {
         }
     }
 
-    private String subtasksRequestGet() {
+    private String getRequestSubtask() {
         if (pathParts.length == ONLY_TASK_TYPE) {
-            List<Subtask> subtaskList = taskManager.getSubtasksList();
-            if (subtaskList.isEmpty()) {
-                return emptyList();
-            } else {
-                code = 200;
-                return gson.toJson(subtaskList);
-            }
+            return subtasksListRequest();
         } else if (pathParts.length == TASK_TYPE_WITH_ID) {
-            try {
-                int id = Integer.parseInt(pathParts[2]);
-                Optional<Subtask> subtask = taskManager.getSubtaskById(id);
-                if (subtask.isPresent()) {
-                    code = 200;
-                    return gson.toJson(subtask.get());
-                }
-                return notFound();
-            } catch (NumberFormatException e) {
-                return badRequest();
-            }
+            return subtaskSingleRequest();
         } else {
             return badRequest();
         }
     }
 
-    private String subtasksRequestPost(HttpExchange exchange) throws IOException {
+    private String subtasksListRequest() {
+        List<Subtask> subtaskList = taskManager.getSubtasksList();
+        if (subtaskList.isEmpty()) {
+            return emptyList();
+        } else {
+            return getSuccess(subtaskList);
+        }
+    }
+
+    private String subtaskSingleRequest() {
+        try {
+            int id = Integer.parseInt(pathParts[2]);
+            Optional<Subtask> subtask = taskManager.getSubtaskById(id);
+            if (subtask.isPresent()) {
+                return getSuccess(subtask.get());
+            }
+            return notFound();
+        } catch (NumberFormatException e) {
+            return badRequest();
+        }
+    }
+
+    private String postRequestSubtask(HttpExchange exchange) throws IOException {
         if (pathParts.length != ONLY_TASK_TYPE) {
             return badRequest();
         }
@@ -227,8 +233,7 @@ public class TaskHandler implements HttpHandler {
             try {
                 if (subtask.getId() == 0) {
                     if (taskManager.getEpicById(subtask.getEpicId()).isEmpty()) {
-                        code = 400;
-                        return createJsonResponse(KEY_ERROR, "Неверно указан id Эпика к которому принадлежит подзадача. Такого Эпика нет");
+                        return badRequestCustomMessage("Неверно указан id Эпика к которому принадлежит подзадача. Такого Эпика нет");
                     }
                     taskManager.createSubtask(subtask, subtask.getEpicId());
                     return createSuccess();
@@ -240,16 +245,14 @@ public class TaskHandler implements HttpHandler {
                     return updateSuccess();
                 }
             } catch (IllegalTaskTimeException e) {
-                code = 406;
-                return createJsonResponse(KEY_ERROR, e.getMessage());
+                return notAcceptable(e.getMessage());
             }
         } catch (JsonParseException | IllegalArgumentException e) {
-            code = 400;
-            return createJsonResponse(KEY_ERROR, "Ошибка в данных: " + e.getMessage());
+            return badRequestCustomMessage(e.getMessage());
         }
     }
 
-    private String subtasksRequestDelete() {
+    private String deleteRequestSubtask() {
         if (pathParts.length != TASK_TYPE_WITH_ID) {
             return badRequest();
         }
@@ -265,36 +268,14 @@ public class TaskHandler implements HttpHandler {
         }
     }
 
-    private String epicsRequestGet() {
+    private String getRequestEpic() {
         try {
             if (pathParts.length == ONLY_TASK_TYPE) {
-                List<Epic> epicList = taskManager.getEpicsList();
-                if (epicList.isEmpty()) {
-                    return emptyList();
-                } else {
-                    code = 200;
-                    return gson.toJson(epicList);
-                }
+                return epicsListRequest();
             } else if (pathParts.length == TASK_TYPE_WITH_ID) {
-                int id = Integer.parseInt(pathParts[2]);
-                Optional<Epic> epic = taskManager.getEpicById(id);
-                if (epic.isPresent()) {
-                    code = 200;
-                    return gson.toJson(epic.get());
-                }
-                return notFound();
+                return epicSingleRequest();
             } else if ((pathParts.length == 4) && (pathParts[3].equals("subtasks"))) {
-                int id = Integer.parseInt(pathParts[2]);
-                Optional<Epic> epic = taskManager.getEpicById(id);
-                if (epic.isPresent()) {
-                    code = 200;
-                    List<Subtask> epicSubtasks = epic.get().getEpicSubtasks().stream().map(subtaskID -> taskManager.getSubtaskById(subtaskID).orElseThrow()).toList();
-                    if (epicSubtasks.isEmpty()) {
-                        return createJsonResponse(KEY_MESSAGE, "В данном Эпике пока что нет подзадач");
-                    }
-                    return gson.toJson(epicSubtasks);
-                }
-                return notFound();
+                return epicSubtasksRequest();
             } else {
                 return badRequest();
             }
@@ -303,7 +284,39 @@ public class TaskHandler implements HttpHandler {
         }
     }
 
-    private String epicsRequestPost(HttpExchange exchange) throws IOException {
+
+    private String epicsListRequest() {
+        List<Epic> epicList = taskManager.getEpicsList();
+        if (epicList.isEmpty()) {
+            return emptyList();
+        } else {
+            return getSuccess(epicList);
+        }
+    }
+
+    private String epicSingleRequest() {
+        int id = Integer.parseInt(pathParts[2]);
+        Optional<Epic> epic = taskManager.getEpicById(id);
+        if (epic.isPresent()) {
+            return getSuccess(epic.get());
+        }
+        return notFound();
+    }
+
+    private String epicSubtasksRequest() {
+        int id = Integer.parseInt(pathParts[2]);
+        Optional<Epic> epic = taskManager.getEpicById(id);
+        if (epic.isPresent()) {
+            List<Subtask> epicSubtasks = epic.get().getEpicSubtasks().stream().map(subtaskID -> taskManager.getSubtaskById(subtaskID).orElseThrow()).toList();
+            if (epicSubtasks.isEmpty()) {
+                return emptyEpic();
+            }
+            return getSuccess(epicSubtasks);
+        }
+        return notFound();
+    }
+
+    private String postRequestEpic(HttpExchange exchange) throws IOException {
         if (pathParts.length != ONLY_TASK_TYPE) {
             return badRequest();
         }
@@ -319,17 +332,15 @@ public class TaskHandler implements HttpHandler {
                     return badRequest();
                 }
             } catch (IllegalTaskTimeException e) {
-                code = 406;
-                return createJsonResponse(KEY_ERROR, e.getMessage());
+                return notAcceptable(e.getMessage());
             }
         } catch (JsonParseException | IllegalArgumentException e) {
-            code = 400;
-            return createJsonResponse(KEY_ERROR, "Ошибка в данных: " + e.getMessage());
+            return badRequestCustomMessage(e.getMessage());
         }
 
     }
 
-    private String epicsRequestDelete() {
+    private String deleteRequestEpic() {
         if (pathParts.length != TASK_TYPE_WITH_ID) {
             return badRequest();
         }
@@ -345,48 +356,56 @@ public class TaskHandler implements HttpHandler {
         }
     }
 
+    private String notAcceptable(String customMessage) {
+        return new JsonResponseBuilder().add(KEY_ERROR, customMessage).status(HTTP_NOT_ACCEPTABLE).build(gson);
+    }
 
     private String emptyList() {
-        code = 200;
-        return createJsonResponse(KEY_MESSAGE, "Cписок на данный момент пуст.");
+        return new JsonResponseBuilder().add(KEY_MESSAGE, "Cписок на данный момент пуст.").status(HTTP_OK).build(gson);
+    }
+
+    private String emptyEpic() {
+        return new JsonResponseBuilder().add(KEY_MESSAGE, "В данном Эпике пока что нет подзадач").status(HTTP_OK).build(gson);
     }
 
     private String badRequest() {
-        code = 400;
-        return createJsonResponse(KEY_ERROR, "Неверный запрос.");
+        return new JsonResponseBuilder().add(KEY_ERROR, "Неверный запрос.").status(HTTP_BAD_REQUEST).build(gson);
+    }
+
+    private String badRequestCustomMessage(String customMessage) {
+        return new JsonResponseBuilder().add(KEY_ERROR, "Ошибка в данных: " + customMessage).status(HTTP_BAD_REQUEST).build(gson);
     }
 
     private String notFound() {
-        code = 404;
-        return createJsonResponse(KEY_ERROR, "Неверно указан id или класс задачи.");
+        return new JsonResponseBuilder().add(KEY_ERROR, "Неверно указан id или класс задачи.").status(HTTP_NOT_FOUND).build(gson);
     }
 
     private String pageNotFound() {
-        code = 404;
-        return createJsonResponse(KEY_ERROR, "Такого адреса не существует");
+        return new JsonResponseBuilder().add(KEY_ERROR, "Такого адреса не существует").status(HTTP_NOT_FOUND).build(gson);
     }
 
     private String deleteSuccess() {
-        code = 200;
-        return createJsonResponse(KEY_MESSAGE, "Задача успешно удалена.");
+        return new JsonResponseBuilder().add(KEY_MESSAGE, "Задача успешно удалена.").status(HTTP_OK).build(gson);
     }
 
     private String updateSuccess() {
-        code = 201;
-        return createJsonResponse(KEY_MESSAGE, "Задача успешно обновлена.");
+        return new JsonResponseBuilder().add(KEY_MESSAGE, "Задача успешно обновлена.").status(HTTP_CREATED).build(gson);
     }
 
     private String createSuccess() {
-        code = 201;
-        return createJsonResponse(KEY_MESSAGE, "Задача успешно создана.");
+        return new JsonResponseBuilder().add(KEY_MESSAGE, "Задача успешно создана.").status(HTTP_CREATED).build(gson);
+    }
+
+    private String getSuccess(Object responseObject) {
+        return new JsonResponseBuilder().addObject(responseObject).status(HTTP_OK).build(gson);
+    }
+
+    enum HttpMethod {
+        GET, POST, DELETE
     }
 
     enum Endpoint {
         TASKS, SUBTASKS, EPICS, HISTORY, UNKNOWN, PRIORITIZED
-    }
-
-    private String createJsonResponse(String key, String value) {
-        return gson.toJson(Map.of(key, value));
     }
 
     private Endpoint getEndpoint() {
@@ -398,6 +417,33 @@ public class TaskHandler implements HttpHandler {
             case "prioritized" -> Endpoint.PRIORITIZED;
             default -> Endpoint.UNKNOWN;
         };
+
+    }
+
+    public class JsonResponseBuilder {
+        private final Map<String, Object> data = new HashMap<>();
+        private Object responseObject;
+        private int statusCode;
+
+        public JsonResponseBuilder add(String key, Object value) {
+            data.put(key, value);
+            return this;
+        }
+
+        public JsonResponseBuilder status(int statusCode) {
+            this.statusCode = statusCode;
+            return this;
+        }
+
+        public String build(Gson gson) {
+            code = statusCode;
+            return gson.toJson(Objects.requireNonNullElse(responseObject, data));
+        }
+
+        public JsonResponseBuilder addObject(Object object) {
+            responseObject = object;
+            return this;
+        }
 
     }
 
