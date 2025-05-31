@@ -11,6 +11,14 @@ public class Epic extends Task {
     private final HashSet<Integer> epicSubtasks;
     private LocalDateTime endTime;
 
+    public Epic() {
+        super();
+        if (super.getDuration() == null) {
+            super.setDuration(Duration.ZERO);
+        }
+        this.epicSubtasks = new HashSet<>();
+    }
+
     public Epic(String name, String description) {
         super(name, description, null, Duration.ZERO);
         this.epicSubtasks = new HashSet<>();
@@ -28,6 +36,19 @@ public class Epic extends Task {
     public Epic(String name, String description, LocalDateTime startTime, Duration duration) {
         super(name, description, startTime, duration);
         this.epicSubtasks = new HashSet<>();
+    }
+
+    @Override
+    public void validate() {
+        if (super.getName() == null || super.getName().isBlank()) {
+            throw new IllegalArgumentException("Имя не указано!");
+        }
+        if (super.getDescription() == null || super.getDescription().isBlank()) {
+            throw new IllegalArgumentException("Описание не указано!");
+        }
+        if (super.getTaskStatus() == null) {
+            throw new IllegalArgumentException("Статус задачи не указан!");
+        }
     }
 
     @Override
