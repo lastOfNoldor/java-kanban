@@ -36,10 +36,10 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         subtask3 = new Subtask("Вторая Подзадача второго Эпика", "description", LocalDateTime.of(2025, Month.DECEMBER, 12, 12, 12), Duration.ofHours(1));
         taskManager.createTask(task);
         taskManager.createEpic(epic1);
-        taskManager.createSubTask(subtask1, epic1.getId());
+        taskManager.createSubtask(subtask1, epic1.getId());
         taskManager.createEpic(epic2);
-        taskManager.createSubTask(subtask2, epic2.getId());
-        taskManager.createSubTask(subtask3, epic2.getId());
+        taskManager.createSubtask(subtask2, epic2.getId());
+        taskManager.createSubtask(subtask3, epic2.getId());
 
     }
 
@@ -54,9 +54,9 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         epic1 = new Epic("Epic1", "Test Epic description");
         testManager.createEpic(epic1);
         subtask1 = new Subtask("Subtask1", "Test Subtask description", LocalDateTime.of(2023, Month.DECEMBER, 12, 14, 12), Duration.ofHours(1));
-        testManager.createSubTask(subtask1, epic1.getId());
+        testManager.createSubtask(subtask1, epic1.getId());
         subtask1.setTaskStatus(TaskStatus.DONE);
-        testManager.updateSubTask(subtask1);
+        testManager.updateSubtask(subtask1);
         try (BufferedReader reader = new BufferedReader(new FileReader(tempFile))) {
             while (reader.ready()) {
                 System.out.println(reader.readLine());
@@ -64,7 +64,7 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         } catch (IOException e) {
             e.printStackTrace();
         }
-        assertEquals(3, testManager.getRegularTasksList().size() + testManager.getSubTasksTasksList().size() + testManager.getEpicTasksList().size());
+        assertEquals(3, testManager.getRegularTasksList().size() + testManager.getSubtasksList().size() + testManager.getEpicsList().size());
     }
 
     @Test
@@ -75,25 +75,25 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         epic1 = new Epic("Epic1", "Test Epic description");
         testManager.createEpic(epic1);
         subtask1 = new Subtask("Subtask1", "Test Subtask description", LocalDateTime.of(2025, Month.DECEMBER, 14, 12, 12), Duration.ofHours(1));
-        testManager.createSubTask(subtask1, epic1.getId());
+        testManager.createSubtask(subtask1, epic1.getId());
         subtask2 = new Subtask("Subtask2", "Test Subtask description", LocalDateTime.of(2025, Month.DECEMBER, 15, 12, 12), Duration.ofHours(1));
-        testManager.createSubTask(subtask2, epic1.getId());
+        testManager.createSubtask(subtask2, epic1.getId());
         epic2 = new Epic("Epic2", "Test Epic description");
         testManager.createEpic(epic2);
         subtask1.setTaskStatus(TaskStatus.DONE);
-        testManager.updateSubTask(subtask1);
+        testManager.updateSubtask(subtask1);
         testManager.printAllTasks();
 
         FileBackedTaskManager newTestManager = FileBackedTaskManager.loadFromFile(tempFile);
         assertEquals(1, newTestManager.getRegularTasksList().size());
-        assertEquals(5, newTestManager.getRegularTasksList().size() + newTestManager.getSubTasksTasksList().size() + newTestManager.getEpicTasksList().size());
+        assertEquals(5, newTestManager.getRegularTasksList().size() + newTestManager.getSubtasksList().size() + newTestManager.getEpicsList().size());
         newTestManager.printAllTasks();
-        assertEquals(2, newTestManager.getEpicById(epic1.getId()).get().getEpicSubtasks().size());
-        System.out.println(newTestManager.getEpicById(epic1.getId()).get().getEpicSubtasks().size());
+        assertEquals(2, newTestManager.getEpicById(epic1.getId()).orElseThrow().getEpicSubtasks().size());
+        System.out.println(newTestManager.getEpicById(epic1.getId()).orElseThrow().getEpicSubtasks().size());
         Subtask subtaskAfterLoad = new Subtask("Subtask after load", "Test Subtask description", LocalDateTime.of(2025, Month.DECEMBER, 16, 12, 12), Duration.ofHours(1));
-        newTestManager.createSubTask(subtaskAfterLoad, epic2.getId());
+        newTestManager.createSubtask(subtaskAfterLoad, epic2.getId());
         assertEquals(6, subtaskAfterLoad.getId());
-        assertEquals(1, newTestManager.getEpicById(epic2.getId()).get().getEpicSubtasks().size());
+        assertEquals(1, newTestManager.getEpicById(epic2.getId()).orElseThrow().getEpicSubtasks().size());
         newTestManager.printAllTasks();
     }
 

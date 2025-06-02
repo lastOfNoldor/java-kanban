@@ -4,37 +4,36 @@ import main.model.Epic;
 import main.model.Subtask;
 import main.model.Task;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
 
 public interface TaskManager {
     Optional<Task> getTaskById(int id);
 
-    Optional<Subtask> getSubTaskById(int id);
+    Optional<Subtask> getSubtaskById(int id);
 
     Optional<Epic> getEpicById(int id);
 
     void createTask(Task task);
 
-    void createSubTask(Subtask subtask, int epicId);
+    void createSubtask(Subtask subtask, int epicId);
 
     void createEpic(Epic epic);
 
     void updateTask(Task task);
 
-    void updateSubTask(Subtask subtask);
-
-    void updateEpic(Epic epic);
+    void updateSubtask(Subtask subtask);
 
     void clearTasks();
 
-    void clearSubTasks();
+    void clearSubtasks();
 
-    void clearEpicTasks();
+    void clearEpics();
 
     void deleteTask(int id);
 
-    void deleteSubTask(int id);
+    void deleteSubtask(int id);
 
     void deleteEpic(int id);
 
@@ -44,4 +43,10 @@ public interface TaskManager {
 
 
     TreeSet<Task> getPrioritizedTasks();
+
+    List<Task> getRegularTasksList();
+
+    List<Subtask> getSubtasksList();
+
+    List<Epic> getEpicsList();
 }

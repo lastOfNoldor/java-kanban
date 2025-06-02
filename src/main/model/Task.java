@@ -7,19 +7,19 @@ import java.time.LocalDateTime;
 
 public class Task {
 
-    private final String name;
-    private final String description;
-    private int id;
-    private TaskStatus taskStatus;
+    private String name;
+    private String description;
+    private int id = 0;
+    private TaskStatus taskStatus = TaskStatus.NEW;
     private Duration duration;
     private LocalDateTime startTime;
 
+    public Task() {
+    }
 
     public Task(String name, String description, LocalDateTime startTime, Duration duration) {
-        this.id = 0;
         this.name = name;
         this.description = description;
-        taskStatus = TaskStatus.NEW;
         this.startTime = startTime;
         this.duration = duration;
     }
@@ -38,6 +38,24 @@ public class Task {
             return null;
         }
         return startTime.plus(duration);
+    }
+
+    public void validate() {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Имя не указано!");
+        }
+        if (description == null || description.isBlank()) {
+            throw new IllegalArgumentException("Описание не указано!");
+        }
+        if (taskStatus == null) {
+            throw new IllegalArgumentException("Статус задачи не указан или указан не верно!");
+        }
+        if (startTime == null) {
+            throw new IllegalArgumentException("Время начала не указано!");
+        }
+        if (duration == null) {
+            throw new IllegalArgumentException("Длительность выполнения не указана!");
+        }
     }
 
     public Duration getDuration() {
@@ -77,6 +95,14 @@ public class Task {
 
     public void setTaskStatus(TaskStatus taskStatus) {
         this.taskStatus = taskStatus;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override
